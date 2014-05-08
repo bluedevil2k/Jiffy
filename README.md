@@ -95,6 +95,10 @@ Controllers
 There are 2 styles you can use to route to your controllers, Action-style or REST-style.  You can either use the PHP style controller/action to trigger the funcion controller.action() or you can use the RESTful
 services like in Ruby on Rails.  Either way will work, it's up to you which one you prefer.
 
+The other option is to write your controller methods so they run synchronously or asynchronously.  If your controller code is quick, just use the standard
+synchronous style methods.  If you're doing something time consuming and don't want to lock up the HTTP thread while it's performing, you can use
+the asynchronous style methods.  See the examples below.
+
 Action-Style
 ------
 You can define actions in your controller quickly using this style.  This always takes the form of "controller/action.serv", where the ".serv" suffix signifies how you want the domain
@@ -103,7 +107,7 @@ to be parsed by the server, Action-Style as opposed to REST-Style.
 In your JSP pages, you should refer to the controllers and the actions in an "underscore" style.  The controllers should then be named in a camelCase style.  This is the common setup
 for all Java/PHP/Ruby frameworks.  The conversion happens automatically on the server.
 
-Example of Action-Style
+Example of Action-Style Controllers
 -------
 
        <!-- On the HTML page -->
@@ -112,19 +116,32 @@ Example of Action-Style
        // Will trigger this function 
        public class UserSessionController
        {
-        public static ServiceResponse login(ServiceRequest input){}
+          public static ServiceResponse login(ServiceRequest input){}
        }
+       
+       // Additionally, you can choose to make the controller methods synchronous or asynchronous - everything is handled automatically 
+       
+       // synchronous
+       public static ServiceResponse doSomething(ServiceRequest input){}
+       
+       // asynchronous
+       public static FutureTask<ServiceResponse> doSomethingTimeConsuming(final ServiceRequest input)
 
 The Objects ServiceRequest and ServiceResponse contain all the request attributes you need to parse the request and the response contains all the attributes needed for a response.
 
     String username = input.req.getParameter("username");
     String password = input.req.getParameter("password"); 
     
+Then, at the end of your method, you can return the proper response type, either a HttpResponse, AjaxResponse, or NoResponse. The server will handle
+everything for you from that point.
+
     HttpResponse response = new HttpResponse();
     response.forwardTo = "index.jsp";
 	return response;
-	
-There are 3 Response objects to choose from - HttpResponse, AjaxResponse, or NoResponse.
+
+    AjaxResponse response = new AjaxResponse();
+    response.ajax = new JSONObject(myObject);
+    return response;
 
 Security on Controllers and JSP's
 -------
@@ -172,7 +189,7 @@ Example
 The result of these configurations lets you set global variables, and environment-specific variables.  This lets you set variables for the application, while each developer can also specify
 their own variables for their own environment.  
 
-NOTE - the file "development.properties" is included in the .gitignore file, so feel free to store local passwords and api keys there.
+NOTE - the file "local.properties" is included in the .gitignore file, so feel free to store local passwords and api keys there.
 
 Cache
 =====

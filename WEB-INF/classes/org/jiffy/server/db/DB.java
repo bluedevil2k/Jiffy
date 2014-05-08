@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
@@ -164,12 +166,12 @@ public class DB
 		Connection conn = DB.getConnection();
 		try
 		{
-		    T result = run.query(conn, sql, h, args);
-		    return result;		        
+			T result = run.query(conn, sql, h, args);
+			return result;		        
 		} 
 		finally 
 		{
-		    DbUtils.close(conn);  
+			DbUtils.close(conn);  
 		}
 	}
 	

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.FutureTask;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebInitParam;
@@ -23,11 +24,8 @@ import org.jiffy.server.security.Security;
 import org.jiffy.server.services.Service;
 import org.jiffy.server.services.ServiceRequest;
 import org.jiffy.server.services.ServiceResponse;
-import org.jiffy.server.services.responses.HttpResponse;
-import org.jiffy.server.services.responses.JsonResponse;
 import org.jiffy.server.threads.UserSessionUpdaterThread;
 import org.jiffy.util.Constants;
-import org.jiffy.util.JSPUtil;
 import org.jiffy.util.Jiffy;
 import org.jiffy.util.Util;
 
@@ -192,49 +190,25 @@ public class JiffyHttpServlet extends HttpServlet
 				Security.validateAccess(appSess, new String[]{role}, method);
 			}
 			
-			// invoke the service method
-			ServiceResponse response = (ServiceResponse)m.invoke(null, input);
+			ServiceResponse response = null;
 			
-			// get the response and check the output
-			boolean doRedirect = false;
-			String forwardTo = null;
-			
-			switch (response.responseType)
+			// allow async or sync calls to the controller
+			if (m.getReturnType().equals(FutureTask.class))
 			{
-				case ServiceResponse.NO:
-				{
-					return;
-				}
-						
-				case ServiceResponse.JSON:
-				{
-					JsonResponse r = (JsonResponse)response;
-			    	JSPUtil.setJSPHeader(resp);
-					resp.setCharacterEncoding("UTF-8");
-					resp.getWriter().print(r.ajaxResponse);
-					resp.getWriter().flush();
-					return;
-				}
-					
-				case ServiceResponse.HTTP:
-				{
-					HttpResponse r = (HttpResponse)response;
-					doRedirect = r.doRedirect;
-					forwardTo = r.forwardTo;
-					break;
-				}
-			}	
-			
-			// now forward to the appropriate page
-			if (doRedirect)
-			{
-				resp.sendRedirect(forwardTo);
+				// invoke the service method asynchronously
+				FutureTask<ServiceResponse> task = (FutureTask<ServiceResponse>)m.invoke(null, input);
+				
+				// wait for the method to finish
+				response = task.get();
 			}
 			else
 			{
-				req.getRequestDispatcher(forwardTo).forward(req, resp);
+				response = (ServiceResponse)m.invoke(null, input);
 			}
-
+			
+			// Let the ServiceResponse respond to the request
+			response.respond(req, resp);
+			
 		}
 		catch (Exception e)
 		{
@@ -251,8 +225,7 @@ public class JiffyHttpServlet extends HttpServlet
 				req.getRequestDispatcher("/error.jsp").forward(req, resp);
 			}
 		}
-	}
-	
+	}	
 	
 	@Override
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
