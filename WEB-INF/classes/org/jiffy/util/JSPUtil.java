@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class JSPUtil
 {	
-	public static void setJSPHeader(HttpServletResponse res) throws Exception
+	public static void noCache(HttpServletResponse res) throws Exception
 	{
 		// for HTTP 1.1
 		res.setHeader("Cache-Control", "no-cache,max-age=0,no-store");

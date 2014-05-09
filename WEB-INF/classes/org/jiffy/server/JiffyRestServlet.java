@@ -3,6 +3,7 @@ package org.jiffy.server;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.concurrent.FutureTask;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebInitParam;
@@ -15,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jiffy.models.User;
 import org.jiffy.models.UserSession;
 import org.jiffy.server.security.Security;
 import org.jiffy.server.services.Service;
@@ -129,18 +131,18 @@ public class JiffyRestServlet extends HttpServlet
 			
 			
 			// if there's no role defined, or the NO_USERS is specifically defined, it's an invalid access
-			if (StringUtils.isEmpty(role) || StringUtils.equals(role, UserSession.NO_USERS))
+			if (StringUtils.isEmpty(role) || StringUtils.equals(role, User.NO_ACCESS))
 			{
 				throw new Exception(Constants.INVALID_ACCESS);
 			}
 				
 			// a group of roles is defined, access check them
-			if (StringUtils.equals(role, UserSession.ANY_USER))
+			if (StringUtils.equals(role, User.ANY_ROLE))
 			{
-				Security.validateAccess(appSess, UserSession.ALL_ROLES, method);
+				Security.validateAccess(appSess, User.ALL_ROLES, method);
 			}
 			// do no access checks
-			else if (StringUtils.equals(role, UserSession.ANYONE))
+			else if (StringUtils.equals(role, User.ALL))
 			{
 				
 			}
@@ -149,50 +151,26 @@ public class JiffyRestServlet extends HttpServlet
 			{
 				Security.validateAccess(appSess, new String[]{role}, method);
 			}
+
+			ServiceResponse response = null;
 			
-			// invoke the service method
-			ServiceResponse response = (ServiceResponse)m.invoke(null, input);
-			
-			// get the response and check the output
-			boolean doRedirect = false;
-			String forwardTo = null;
-			
-			switch (response.responseType)
+			// allow async or sync calls to the controller
+			if (m.getReturnType().equals(FutureTask.class))
 			{
-				case ServiceResponse.NO:
-				{
-					return;
-				}
-						
-				case ServiceResponse.JSON:
-				{
-					JsonResponse r = (JsonResponse)response;
-			    	JSPUtil.setJSPHeader(resp);
-					resp.setCharacterEncoding("UTF-8");
-					resp.getWriter().print(r.ajaxResponse);
-					resp.getWriter().flush();
-					return;
-				}
-					
-				case ServiceResponse.HTTP:
-				{
-					HttpResponse r = (HttpResponse)response;
-					doRedirect = r.doRedirect;
-					forwardTo = r.forwardTo;
-					break;
-				}
-			}	
-			
-			// now forward to the appropriate page
-			if (doRedirect)
-			{
-				resp.sendRedirect(forwardTo);
+				// invoke the service method asynchronously
+				FutureTask<ServiceResponse> task = (FutureTask<ServiceResponse>)m.invoke(null, input);
+				
+				// wait for the method to finish
+				response = task.get();
 			}
 			else
 			{
-				req.getRequestDispatcher(forwardTo).forward(req, resp);
+				response = (ServiceResponse)m.invoke(null, input);
 			}
-
+			
+			// Let the ServiceResponse respond to the request
+			response.respond(req, resp);
+			
 		}
 		catch (Exception e)
 		{

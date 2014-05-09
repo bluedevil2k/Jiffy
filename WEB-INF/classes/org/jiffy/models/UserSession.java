@@ -12,19 +12,7 @@ import org.jiffy.util.Jiffy;
 
 @DBTable
 public class UserSession implements Serializable
-{
-	public static final String ADMIN = "admin";
-	public static final String USER = "user";
-	
-	// a shortcut to ALL_ROLES for Services
-	public static final String ANY_USER = "everyone";
-	// no access for anyone
-	public static final String NO_USERS = "no_one";
-	// no role, for use with Services
-	public static final String ANYONE = "all";
-	
-	public static final String[] ALL_ROLES = new String[]{ADMIN, USER};
-	
+{	
 	@DBColumn
 	public String sessionId;
 	@DBColumn

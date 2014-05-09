@@ -8,22 +8,17 @@ import org.jiffy.util.JSPUtil;
 
 public class JsonResponse extends ServiceResponse
 {
-	public boolean isAjax;
-	public String ajaxResponse;
+	public String text;
 	
-	public JsonResponse()
-	{
-		super();
-		responseType = ServiceResponse.JSON;
-	}
-
 	@Override
 	public void respond(HttpServletRequest req, HttpServletResponse resp) throws Exception
 	{
-		// must set cache to empty for iOS devices
-    	JSPUtil.setJSPHeader(resp);
+		// must set not to cache for iOS devices
+    	JSPUtil.noCache(resp);
+    	    	
 		resp.setCharacterEncoding("UTF-8");
-		resp.getWriter().print(ajaxResponse);
+		resp.setContentType("application/json");
+		resp.getWriter().print(text);
 		resp.getWriter().flush();
 	}
 }

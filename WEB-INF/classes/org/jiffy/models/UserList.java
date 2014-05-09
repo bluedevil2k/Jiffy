@@ -2,7 +2,6 @@ package org.jiffy.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class UserList extends ArrayList<User> implements Serializable
 {

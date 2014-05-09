@@ -1,28 +1,36 @@
 Jiffy
 =====
 
-Jiffy is a quick and easy Java Web App Framework that's highly scalable.
+Jiffy is a quick and easy Java Web App Framework for highly scalable applications.
 
 The Basics
 =====
 
-Jiffy is designed to allow you to create a quick web application using Java.  It's inspired from my work in other frameworks like Ruby on Rails, PHP's CodeIgniter and Cake, and 
-Java's Play! framework.
+Jiffy is designed to allow you to quickly create a scalable and performant web application using Java.  It's inspired from my work in other frameworks 
+like Ruby on Rails, PHP's CodeIgniter, and Java's Play! framework.  It's design goals are simple:
+* Get an app up and running as quickly as possible
+* Be as easy to learn as possible from a few examples
+* Allow moderate-level Java programmers to use it
+* Convention over configuration to the extreme
+* Get an application that will scale to tens of thousands of users out of the box
 
-Here are the basic building blocks of Jiffy
-* Convention over configuration to the extreme.  Just code and go.
-* Like a simple /controller/method format like in CodeIgniter?  We have that.  Prefer a RESTful server like Rails?  We have that too.
-* The ability to deploy to one server or multiple servers without changing your code
-* An extremely powerful and scalable DB layer, utilizing connection pools, and scalable to thousands of concurrent users
-* An abstraction of the Sessions, for one server or many servers
-* An abstraction for Cache, for one server or many servers
-* Designed to run on Apache Tomcat
+Building Blocks of Jiffy
+-------
+* Controllers that follow two conventions.  Choose the simple /controller/method format like in CodeIgniter or use a RESTful approach like in Rails.  Either way, no route files are necessary.
+* The ability to deploy to one server or multiple servers without changing your code by abstracting out Sessions from a single JVM.
+* An extremely powerful and scalable DB class, utilizing built in connection pools, and scalable to tens of thousands of concurrent users.
+* Closely tied together Model and DB layers, allowing for extremely simple DB->Model coding.  No JPA or XML configuration files, just standard SQL code.
+* Built in Security - protect every controller method and every JSP page with a simple Annotation.
+* Controller methods can be synchronous or asynchronous, allowing for better server-side scalability and long-lasting method calls.
+* An abstraction of the Cache layer, utilizing a caching layer not tied to a single JVM.
+* Built in web filters to cache and compress JS/CSS and images.
+* Designed to run on Apache Tomcat as a simple WAR file.
 
 Database
 =====
 
 The database layer in Jiffy is designed to make it simple to code for, but also scalable to thousands of concurrent users. It was created to be much simpler to use than JPA for people
-that weren't scared to write a little SQL code.
+that are comfortable writing a little SQL code.
 
 It utilizes connection pooling from Tomcat 7's DBPool class and database utility methods and abstractions from Apache's DBUtils class.  The end result is a DB utility class that handles 
 eveything you could want from your DB abstraction layer.
@@ -119,7 +127,8 @@ Example of Action-Style Controllers
           public static ServiceResponse login(ServiceRequest input){}
        }
        
-       // Additionally, you can choose to make the controller methods synchronous or asynchronous - everything is handled automatically 
+       // Additionally, you can choose to make the controller methods synchronous
+       // or asynchronous - everything is handled automatically 
        
        // synchronous
        public static ServiceResponse doSomething(ServiceRequest input){}
@@ -132,15 +141,15 @@ The Objects ServiceRequest and ServiceResponse contain all the request attribute
     String username = input.req.getParameter("username");
     String password = input.req.getParameter("password"); 
     
-Then, at the end of your method, you can return the proper response type, either a HttpResponse, AjaxResponse, or NoResponse. The server will handle
+Then, at the end of your method, you can return the proper response type, either a HttpResponse, JsonResponse, ErrorResponse, or NoResponse. The server will handle
 everything for you from that point.
 
     HttpResponse response = new HttpResponse();
-    response.forwardTo = "index.jsp";
+    response.nextPage = "/index.jsp";
 	return response;
 
-    AjaxResponse response = new AjaxResponse();
-    response.ajax = new JSONObject(myObject);
+    JsonResponse response = new JsonResponse();
+    response.text = new JSONObject(myObject);
     return response;
 
 Security on Controllers and JSP's
@@ -151,12 +160,12 @@ why not include it in the framework itself.
 Every Controller and JSP has the ability to add Access control to it for certain users.  This can be done in the Controller by simply adding an Annotation to the method with an access level
 for the function
 
-    // only the ADMIN call access this function - all others will get a 500 error
-    @Service(access=UserSession.ADMIN)
+    // only the ADMIN can access this function - all others will get a 500 error
+    @Service(access=User.ADMIN)
 	public static ServiceResponse index(ServiceRequest input) throws Exception
 	
 	// or in a JSP file
-    Security.validateAccess(request, UserData.ADMIN);
+    Security.validateAccess(request, User.ADMIN);
 
 Jiffy Configuration Files
 ====
@@ -224,4 +233,4 @@ MORE DETAILS COMING
 
 TODO
 =====
-The routing in this framework kind of sucks right now.  A call to login.serv for example will keep that URL in the address bar
+

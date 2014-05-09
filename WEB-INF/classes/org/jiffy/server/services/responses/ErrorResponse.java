@@ -5,11 +5,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jiffy.server.services.ServiceResponse;
 
-public class NoResponse extends ServiceResponse
+public class ErrorResponse extends ServiceResponse 
 {
+	public int errorCode;
+	
 	@Override
-	public void respond(HttpServletRequest req, HttpServletResponse resp) throws Exception
+	public void respond(HttpServletRequest req, HttpServletResponse resp) throws Exception 
 	{
-		
+		resp.sendError(errorCode);
 	}
+
 }

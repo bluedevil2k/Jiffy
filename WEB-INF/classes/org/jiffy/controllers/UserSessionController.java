@@ -5,6 +5,7 @@ import java.util.concurrent.FutureTask;
 import org.apache.commons.lang3.StringUtils;
 import org.jiffy.models.User;
 import org.jiffy.models.UserSession;
+import org.jiffy.server.Flash;
 import org.jiffy.server.Sessions;
 import org.jiffy.server.db.DB;
 import org.jiffy.server.security.PasswordService;
@@ -18,8 +19,8 @@ import org.jiffy.util.Jiffy;
 import org.jiffy.util.Util;
 
 public class UserSessionController extends AppController
-{			
-	@Service(access=UserSession.ANYONE)
+{		
+	@Service(access=User.ALL)
 	public static FutureTask<ServiceResponse> login(final ServiceRequest input)
 	{
 		return new FutureTask<ServiceResponse>(new ServiceTask(){
@@ -105,17 +106,17 @@ public class UserSessionController extends AppController
 				catch (Exception e)
 				{
 					Util.printErrorDetails(logger, e);
-					input.req.setAttribute(Constants.ERROR_MESSAGE, e.getMessage());
+					Flash.set(input.req, Constants.ERROR_MESSAGE, e.getMessage());
 				}
 						
 				HttpResponse response = new HttpResponse();
-				response.forwardTo = "index.jsp";
+				response.nextPage = "/index.jsp";
 				return response;		
 			};
 		});
 	}
 	
-	@Service(access=UserSession.ANY_USER)
+	@Service(access=User.ANY_ROLE)
 	public static ServiceResponse logout(ServiceRequest input)
 	{
 		try
@@ -125,11 +126,11 @@ public class UserSessionController extends AppController
 		catch (Exception e)
 		{
 			Util.printErrorDetails(logger, e);
-			input.req.setAttribute(Constants.ERROR_MESSAGE, e.getMessage());
+			Flash.set(input.req, Constants.ERROR_MESSAGE, e.getMessage());
 		}
 		
 		HttpResponse response = new HttpResponse();
-		response.forwardTo = "index.jsp";
+		response.nextPage = "/index.jsp";
 		return response;
 	}
 }

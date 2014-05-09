@@ -1,4 +1,3 @@
-
 package org.jiffy.server;
 
 import java.io.IOException;
@@ -17,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jiffy.models.User;
 import org.jiffy.models.UserSession;
 import org.jiffy.server.cache.Cache;
 import org.jiffy.server.db.DB;
@@ -169,18 +169,18 @@ public class JiffyHttpServlet extends HttpServlet
 			String role = m.getAnnotation(Service.class).access();
 			
 			// if there's no role defined, or the NO_USERS is specifically defined, it's an invalid access
-			if (StringUtils.isEmpty(role) || StringUtils.equals(role, UserSession.NO_USERS))
+			if (StringUtils.isEmpty(role) || StringUtils.equals(role, User.NO_ACCESS))
 			{
 				throw new Exception(Constants.INVALID_ACCESS);
 			}
 				
 			// a group of roles is defined, access check them
-			if (StringUtils.equals(role, UserSession.ANY_USER))
+			if (StringUtils.equals(role, User.ANY_ROLE))
 			{
-				Security.validateAccess(appSess, UserSession.ALL_ROLES, method);
+				Security.validateAccess(appSess, User.ALL_ROLES, method);
 			}
 			// do no access checks
-			else if (StringUtils.equals(role, UserSession.ANYONE))
+			else if (StringUtils.equals(role, User.ALL))
 			{
 				
 			}

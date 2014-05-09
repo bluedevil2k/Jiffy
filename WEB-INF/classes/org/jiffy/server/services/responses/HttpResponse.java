@@ -1,32 +1,32 @@
 package org.jiffy.server.services.responses;
 
+import java.util.Enumeration;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jiffy.server.Flash;
 import org.jiffy.server.services.ServiceResponse;
 
 public class HttpResponse extends ServiceResponse
 {
-	public String forwardTo;
-	public boolean doRedirect;
+	public String nextPage;
 	
-	public HttpResponse()
-	{
-		super();
-		responseType = ServiceResponse.HTTP;
-	}
-
 	@Override
 	public void respond(HttpServletRequest req, HttpServletResponse resp) throws Exception
 	{
-		if (doRedirect)
+		// Set all responses to redirects for proper routing in the browser
+		
+		// As a result, we must map the attributes to the Flash object
+		Enumeration<String> e = req.getAttributeNames();
+		while (e.hasMoreElements())
 		{
-			resp.sendRedirect(forwardTo);
+			String key = e.nextElement();
+			Object value = req.getAttribute(key);
+			Flash.set(req, key, value);
 		}
-		else
-		{
-			req.getRequestDispatcher(forwardTo).forward(req, resp);
-		}
+		
+		resp.sendRedirect(nextPage);
 	}
 
 }
