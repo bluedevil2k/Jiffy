@@ -229,3 +229,4 @@ TODO
 * REST functionality is still a little messy
 * Find a better JSON->Java implementation - maybe Jackson?
 * Replace the basic ConcurrentHashMap cache with a better more tuned cache from Guava
+* NoSQL support needs to be added

@@ -33,9 +33,11 @@ public class DB
 
     public static final String MYSQL = "mysql";
     public static final String MARIADB = "mariadb";
+    public static final String POSTGRESQL = "postgresql";
 
     private static final String MYSQL_DRIVER = "com.mysql.jdbc.Driver";
     private static final String MARIADB_DRIVER = "org.mariadb.jdbc.Driver";
+    private static final String POSTGRESQL_DRIVER = "org.postgresql.Driver";
     
     private static volatile boolean isInitialized = false;
     
@@ -60,6 +62,10 @@ public class DB
 		else if (StringUtils.equals(dbEngine, MARIADB))
 		{
 			jdbcDriver = MARIADB_DRIVER;
+		}
+		else if (StringUtils.equals(dbEngine, POSTGRESQL))
+		{
+			jdbcDriver = POSTGRESQL_DRIVER;
 		}
 
 		// db parameters
