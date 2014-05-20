@@ -1,54 +1,56 @@
 package org.jiffy.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/**
+ * A utility class that replicates the Stream's parallel() functionality found in Java 8, for projects that can't upgrade to Java 8.
+ * 
+ * I found some of this code a year ago on StackOverflow, but have changed the class and function names so much, I couldn't find the original post and give
+ * the author his credit.  So, to that author, thanks.
+ * 
+ * <p><b>Example Usage</b>:
+ * <code>
+ * <p>Parallel.forEach(elems, 
+ * <br>  new Parallel.Function<Integer>() {
+ * <br>    public void execute(Integer param) {
+ * <br>       System.out.println(param);
+ * <br>    };
+ * <br>  });	
+ * </code>
+ * 
+ * @author bluedevil2k
+ *
+ */
 public class Parallel
 {
+	private static Logger logger = LogManager.getLogger();
+		
+	private static final int CORES = Runtime.getRuntime().availableProcessors();
+	private static final ExecutorService executor = Executors.newFixedThreadPool(CORES / 2);
 
-	//	Parallel.peach(elems, 
-	//		 // The operation to perform with each item
-	//		 new Parallel.Operation<Integer>() {
-	//		    public void perform(Integer param, int counter) {
-	//		        System.out.println(param);
-	//		    };
-	//		});	
-	
-	private static final int NUM_CORES = Runtime.getRuntime().availableProcessors();
-
-	private static final ExecutorService forPool = Executors.newFixedThreadPool(NUM_CORES + 1);
-
-	public static <T> void peach(final Iterable<T> elements, final Operation<T> operation)
+	public static <T> void forEach(final Iterable<T> elements, final Function<T> function)
 	{
 		try
 		{
-			forPool.invokeAll(createCallables(elements, operation));
+			executor.invokeAll(tasks(elements, function));
 		}
-		catch (InterruptedException e)
+		catch (InterruptedException ex)
 		{
-			e.printStackTrace();
-		}
-	}
-	
-	public static <T> void pfor(int start, int end, final Operation<T> operation)
-	{
-		try
-		{
-			forPool.invokeAll(createCallables(start, end, operation));
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
+			LogUtil.printErrorDetails(logger, ex);
 		}
 	}
 
-	private static <T> Collection<Callable<Void>> createCallables(final Iterable<T> elements, final Operation<T> operation)
+	private static <T> Collection<Callable<Void>> tasks(final Iterable<T> elements, final Function<T> function)
 	{
-		List<Callable<Void>> callables = new LinkedList<Callable<Void>>();
+		List<Callable<Void>> callables = new ArrayList<Callable<Void>>();
 		for (final T elem : elements)
 		{
 			callables.add(new Callable<Void>()
@@ -56,27 +58,7 @@ public class Parallel
 				@Override
 				public Void call()
 				{
-					operation.perform(elem, 0);
-					return null;
-				}
-			});
-		}
-
-		return callables;
-	}
-	
-	private static <T> Collection<Callable<Void>> createCallables(final int start, final int stop, final Operation<T> operation)
-	{
-		List<Callable<Void>> callables = new LinkedList<Callable<Void>>();
-		for (int i=start; i<stop; i++)
-		{
-			final int counter = i;
-			callables.add(new Callable<Void>()
-			{
-				@Override
-				public Void call()
-				{
-					operation.perform(null, counter);
+					function.execute(elem);
 					return null;
 				}
 			});
@@ -85,8 +67,8 @@ public class Parallel
 		return callables;
 	}
 
-	public static interface Operation<T>
+	public static interface Function<T>
 	{
-		public void perform(T pParameter, int counter);
+		public void execute(T param);
 	}
 }

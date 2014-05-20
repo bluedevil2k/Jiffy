@@ -11,11 +11,11 @@ import org.jiffy.server.services.responses.JsonResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class UserController 
+public class UserController extends AppController
 {
 	@Service(access=User.ADMIN)
 	public static ServiceResponse index(ServiceRequest input) throws Exception
-	{
+	{		
 		UserList s = User.lookup();
 		
 		if (input.wantsJson)

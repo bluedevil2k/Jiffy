@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jiffy.util.Util;
+import org.jiffy.util.LogUtil;
 
 public class Flash 
 {
@@ -32,7 +32,7 @@ public class Flash
 		}
 		catch (Exception ex)
 		{
-			Util.printErrorDetails(logger, ex);
+			LogUtil.printErrorDetails(logger, ex);
 		}
 	}
 	

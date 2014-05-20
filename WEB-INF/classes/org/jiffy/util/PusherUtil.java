@@ -38,7 +38,7 @@ public class PusherUtil
 				{	
 					PusherUtil.triggerPush(Jiffy.getValue("pusherAppID"), Jiffy.getValue("pusherAppKey"), Jiffy.getValue("pusherAppSecret"), pusherChannel, event, message);
 				}
-				catch (Exception ex) { Util.printErrorDetails(logger, ex); }
+				catch (Exception ex) { LogUtil.printErrorDetails(logger, ex); }
 			}
 		};
 		
@@ -316,7 +316,7 @@ public class PusherUtil
 		}
 		catch (Exception ex)
 		{
-			Util.printErrorDetails(logger, ex);
+			LogUtil.printErrorDetails(logger, ex);
 			return false;
 		}
 		finally

@@ -198,7 +198,7 @@ public class TimeUtil
 		}
 		catch (Exception ex)
 		{
-			Util.printErrorDetails(logger, ex);
+			LogUtil.printErrorDetails(logger, ex);
 			throw new Exception("error.invalidTimeFormat");
 		}
 		

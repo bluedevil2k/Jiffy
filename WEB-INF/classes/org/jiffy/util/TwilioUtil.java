@@ -32,23 +32,13 @@ public class TwilioUtil {
 											
 					TwilioRestResponse response = t.request("/2010-04-01/Accounts/" + t.getAccountSid() + "/SMS/Messages", "POST", map);
 				}
-				catch (Exception ex) { Util.printErrorDetails(logger, ex); }
+				catch (Exception ex) { LogUtil.printErrorDetails(logger, ex); }
 			}
 		};
 		
 		thread.start();
 	}
-	
-	public static String expandTextForSpeech(String pass)
-	{
-		StringBuilder b = new StringBuilder();
-		for (int i=0; i<pass.length(); i++)
-		{
-			b.append(pass.charAt(i) + " ");
-		}
-		return b.toString();
-	}
-	
+		
 	public static String sanitizeUSNumber(String number) throws Exception
 	{
 		number = StringUtils.remove(number, " ");

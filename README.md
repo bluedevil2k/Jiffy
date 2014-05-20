@@ -14,17 +14,21 @@ like Ruby on Rails, PHP's CodeIgniter, and Java's Play! framework.  It's design 
 * Convention over configuration to the extreme
 * Get an application that will scale to tens of thousands of users out of the box
 
+To be blunt, frameworks like Play! have a large learning curve - sometimes you just want to quickly throw together a web application using Java.
+
 Building Blocks of Jiffy
 -------
-* Controllers that follow two conventions.  Choose the simple /controller/method format like in CodeIgniter or use a RESTful approach like in Rails.  Either way, no route files are necessary.
+* Controllers that follow two conventions.  Choose the simple /controller/method format (RPC - Remote Procedure Call) like in CodeIgniter 
+  or use a RESTful approach like in Rails.  Either way, no route files are necessary.
 * The ability to deploy to one server or multiple servers without changing your code by abstracting out Sessions from a single JVM.
 * An extremely powerful and scalable DB class, utilizing built in connection pools, and scalable to tens of thousands of concurrent users.
 * Closely tied together Model and DB layers, allowing for extremely simple DB->Model coding.  No JPA or XML configuration files, just standard SQL code.
 * Built in Security - protect every controller method and every JSP page with a simple Annotation.
-* Controller methods can be synchronous or asynchronous, allowing for better server-side scalability and long-lasting method calls.
 * An abstraction of the Cache layer, utilizing a caching layer not tied to a single JVM.
 * Built in web filters to cache and compress JS/CSS and images.
-* Designed to run on Apache Tomcat as a simple WAR file.
+* Optimized for Apache Tomcat, and will run on any Java Servlet engine as a WAR file
+* Works with MySQL, MariaDB and Postres databases
+* Works with any memcached client (tested with Couchbase)
 
 Database
 =====
@@ -100,19 +104,16 @@ Example
 
 Controllers
 ======
-There are 2 styles you can use to route to your controllers, Action-style or REST-style.  You can either use the PHP style controller/action to trigger the funcion controller.action() or you can use the RESTful
+There are 2 styles you can use to route to your controllers, RPC-style or REST-style.  You can either use the PHP style controller/action to trigger the funcion controller.action() or you can use the RESTful
 services like in Ruby on Rails.  Either way will work, it's up to you which one you prefer.
 
-The other option is to write your controller methods so they run synchronously or asynchronously.  If your controller code is quick, just use the standard
-synchronous style methods.  If you're doing something time consuming and don't want to lock up the HTTP thread while it's performing, you can use
-the asynchronous style methods.  See the examples below.
 
-Action-Style
+RPC-Style
 ------
 You can define actions in your controller quickly using this style.  This always takes the form of "controller/action.serv", where the ".serv" suffix signifies how you want the domain
-to be parsed by the server, Action-Style as opposed to REST-Style.
+to be parsed by the server, RPC-Style as opposed to REST-Style.
 
-In your JSP pages, you should refer to the controllers and the actions in an "underscore" style.  The controllers should then be named in a camelCase style.  This is the common setup
+In your JSP pages, you should refer to the controllers and the actions in an "underscore" style.  The controllers should then be named in a "camelCase" style.  This is the common setup
 for all Java/PHP/Ruby frameworks.  The conversion happens automatically on the server.
 
 Example of Action-Style Controllers
@@ -126,15 +127,7 @@ Example of Action-Style Controllers
        {
           public static ServiceResponse login(ServiceRequest input){}
        }
-       
-       // Additionally, you can choose to make the controller methods synchronous
-       // or asynchronous - everything is handled automatically 
-       
-       // synchronous
-       public static ServiceResponse doSomething(ServiceRequest input){}
-       
-       // asynchronous
-       public static FutureTask<ServiceResponse> doSomethingTimeConsuming(final ServiceRequest input)
+
 
 The Objects ServiceRequest and ServiceResponse contain all the request attributes you need to parse the request and the response contains all the attributes needed for a response.
 
@@ -233,4 +226,6 @@ MORE DETAILS COMING
 
 TODO
 =====
-
+* REST functionality is still a little messy
+* Find a better JSON->Java implementation - maybe Jackson?
+* Replace the basic ConcurrentHashMap cache with a better more tuned cache from Guava

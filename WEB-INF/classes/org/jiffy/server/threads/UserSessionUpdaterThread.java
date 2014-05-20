@@ -3,7 +3,7 @@ package org.jiffy.server.threads;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jiffy.models.UserSession;
-import org.jiffy.util.Util;
+import org.jiffy.util.LogUtil;
 
 public class UserSessionUpdaterThread implements Runnable
 {
@@ -35,7 +35,7 @@ public class UserSessionUpdaterThread implements Runnable
 		{
 			System.out.println("***** Session Updater Threw an Error");
 			logger.error("***** Session Updater Threw an Error");
-			Util.printErrorDetails(logger, ex);
+			LogUtil.printErrorDetails(logger, ex);
 		}
 	}
 

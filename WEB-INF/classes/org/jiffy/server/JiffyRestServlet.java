@@ -3,7 +3,6 @@ package org.jiffy.server;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.concurrent.FutureTask;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebInitParam;
@@ -22,10 +21,8 @@ import org.jiffy.server.security.Security;
 import org.jiffy.server.services.Service;
 import org.jiffy.server.services.ServiceRequest;
 import org.jiffy.server.services.ServiceResponse;
-import org.jiffy.server.services.responses.HttpResponse;
-import org.jiffy.server.services.responses.JsonResponse;
 import org.jiffy.util.Constants;
-import org.jiffy.util.JSPUtil;
+import org.jiffy.util.LogUtil;
 import org.jiffy.util.Util;
 
 @WebServlet(name="JiffyREST", 
@@ -152,21 +149,7 @@ public class JiffyRestServlet extends HttpServlet
 				Security.validateAccess(appSess, new String[]{role}, method);
 			}
 
-			ServiceResponse response = null;
-			
-			// allow async or sync calls to the controller
-			if (m.getReturnType().equals(FutureTask.class))
-			{
-				// invoke the service method asynchronously
-				FutureTask<ServiceResponse> task = (FutureTask<ServiceResponse>)m.invoke(null, input);
-				
-				// wait for the method to finish
-				response = task.get();
-			}
-			else
-			{
-				response = (ServiceResponse)m.invoke(null, input);
-			}
+			ServiceResponse response = (ServiceResponse)m.invoke(null, input);
 			
 			// Let the ServiceResponse respond to the request
 			response.respond(req, resp);
@@ -180,7 +163,7 @@ public class JiffyRestServlet extends HttpServlet
 			}
 			else
 			{
-				Util.printErrorDetails(logger, e, "JiffyRESTServlet Exception");
+				LogUtil.printErrorDetails(logger, e, "JiffyRESTServlet Exception");
 				req.setAttribute("javax.servlet.jsp.jspException", e);
 				req.setAttribute(Constants.EXCEPTION, e);
 				req.setAttribute(Constants.ERROR, e);

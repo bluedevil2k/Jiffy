@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.FutureTask;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebInitParam;
@@ -27,6 +26,7 @@ import org.jiffy.server.services.ServiceResponse;
 import org.jiffy.server.threads.UserSessionUpdaterThread;
 import org.jiffy.util.Constants;
 import org.jiffy.util.Jiffy;
+import org.jiffy.util.LogUtil;
 import org.jiffy.util.Util;
 
 @WebServlet(name="JiffyHTTP", 
@@ -126,7 +126,7 @@ public class JiffyHttpServlet extends HttpServlet
 			System.out.println("^^^^  ERROR STARTING JIFFY SERVLET   ^^^^");
 			logger.info("^^^^  ERROR STARTING JIFFY SERVLET   ^^^^");
 			System.out.println(ex.getMessage());
-			Util.printErrorDetails(logger, ex);
+			LogUtil.printErrorDetails(logger, ex);
             throw new ServletException(ex.getMessage());
 		}
 	}
@@ -190,21 +190,7 @@ public class JiffyHttpServlet extends HttpServlet
 				Security.validateAccess(appSess, new String[]{role}, method);
 			}
 			
-			ServiceResponse response = null;
-			
-			// allow async or sync calls to the controller
-			if (m.getReturnType().equals(FutureTask.class))
-			{
-				// invoke the service method asynchronously
-				FutureTask<ServiceResponse> task = (FutureTask<ServiceResponse>)m.invoke(null, input);
-				
-				// wait for the method to finish
-				response = task.get();
-			}
-			else
-			{
-				response = (ServiceResponse)m.invoke(null, input);
-			}
+			ServiceResponse response = (ServiceResponse)m.invoke(null, input);
 			
 			// Let the ServiceResponse respond to the request
 			response.respond(req, resp);
@@ -218,7 +204,7 @@ public class JiffyHttpServlet extends HttpServlet
 			}
 			else
 			{
-				Util.printErrorDetails(logger, e, "JiffyHttpServlet Exception");
+				LogUtil.printErrorDetails(logger, e, "JiffyHttpServlet Exception");
 				req.setAttribute("javax.servlet.jsp.jspException", e);
 				req.setAttribute(Constants.EXCEPTION, e);
 				req.setAttribute(Constants.ERROR, e);
