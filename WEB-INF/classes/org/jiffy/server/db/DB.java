@@ -1,13 +1,12 @@
 package org.jiffy.server.db;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
@@ -20,8 +19,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
+import org.jiffy.server.db.annotations.DBColumn;
+import org.jiffy.server.db.annotations.DBTable;
 import org.jiffy.server.db.handlers.AnnotatedDataRowProcessor;
 import org.jiffy.util.Jiffy;
+import org.jiffy.util.Util;
 
 public class DB
 {
@@ -164,15 +166,44 @@ public class DB
 		}
     }
     	
-	public static <T> T selectOne(String sql, Class<T> type, Object...args) throws Exception
+//	public static <T> T selectOne(String sql, Class<T> type, Object...args) throws Exception
+//	{
+//		QueryRunner run = new QueryRunner();
+//		ResultSetHandler<T> h = new BeanHandler<T>(type, new AnnotatedDataRowProcessor());
+//
+//		Connection conn = DB.getConnection();
+//		try
+//		{
+//			T result = run.query(conn, sql, h, args);
+//			return result;		        
+//		} 
+//		finally 
+//		{
+//			DbUtils.close(conn);  
+//		}
+//	}
+	
+	public static <T> T selectOne(Class<T> type, Object...args) throws Exception
+	{
+		return selectOne(type, "", args);
+	}
+    
+	public static <T> T selectOne(Class<T> type, String clause, Object...args) throws Exception
 	{
 		QueryRunner run = new QueryRunner();
 		ResultSetHandler<T> h = new BeanHandler<T>(type, new AnnotatedDataRowProcessor());
 
+		// TODO using column names instead of fieldNames is messy
+		
 		Connection conn = DB.getConnection();
 		try
 		{
-			T result = run.query(conn, sql, h, args);
+			String table = type.newInstance().getClass().getAnnotation(DBTable.class).table();
+			if (!StringUtils.isEmpty(clause))
+			{
+				clause = " " + clause;
+			}
+			T result = run.query(conn, "SELECT * FROM " + table + clause, h, args);
 			return result;		        
 		} 
 		finally 
@@ -181,7 +212,30 @@ public class DB
 		}
 	}
 	
-	public static <T, S extends ArrayList<T>> S selectAll(String sql, Class<S> listType, Object...args) throws Exception
+//	public static <T, S extends ArrayList<T>> S selectAll(String sql, Class<S> listType, Object...args) throws Exception
+//	{
+//		Class<T> t = (Class<T>)((ParameterizedType)listType.getGenericSuperclass()).getActualTypeArguments()[0];
+//
+//		QueryRunner run = new QueryRunner();
+//		ResultSetHandler<List<T>> h = new BeanListHandler<T>(t, new AnnotatedDataRowProcessor(listType));
+//
+//		Connection conn = DB.getConnection();
+//		try
+//		{
+//		    return (S)run.query(conn, sql, h, args);
+//		} 
+//		finally 
+//		{
+//		    DbUtils.close(conn);  
+//		}
+//	}
+	
+	public static <T, S extends ArrayList<T>> S selectAll(Class<S> listType, Object...args) throws Exception
+	{
+		return selectAll(listType, "", args);
+	}
+	
+	public static <T, S extends ArrayList<T>> S selectAll(Class<S> listType, String clause, Object...args) throws Exception
 	{
 		Class<T> t = (Class<T>)((ParameterizedType)listType.getGenericSuperclass()).getActualTypeArguments()[0];
 
@@ -191,7 +245,12 @@ public class DB
 		Connection conn = DB.getConnection();
 		try
 		{
-		    return (S)run.query(conn, sql, h, args);
+			String table = t.newInstance().getClass().getAnnotation(DBTable.class).table();
+			if (!StringUtils.isEmpty(clause))
+			{
+				clause = " " + clause;
+			}
+		    return (S)run.query(conn, "SELECT * FROM " + table + clause, h, args);
 		} 
 		finally 
 		{
@@ -222,7 +281,7 @@ public class DB
 	    return run.update(conn, sql, args);
 	}
 	
-	public static int count(String table, String conditions, Object... args) throws Exception
+	public static <T> int count(Class<T> type, String clause, Object... args) throws Exception
 	{
 		QueryRunner run = new QueryRunner();
 		ResultSetHandler<Integer> h = new ResultSetHandler<Integer>() 
@@ -240,7 +299,12 @@ public class DB
 		Connection conn = DB.getConnection();
 		try
 		{
-		    return run.query(conn, new StringBuilder("SELECT COUNT(*) AS COUNT FROM ").append(table).append(" ").append(conditions).toString(), h, args);
+			String table = type.newInstance().getClass().getAnnotation(DBTable.class).table();
+			if (!StringUtils.isEmpty(clause))
+			{
+				clause = " " + clause;
+			}
+		    return run.query(conn, new StringBuilder("SELECT COUNT(*) AS COUNT FROM ").append(table).append(clause).toString(), h, args);
 		} 
 		finally 
 		{
@@ -248,7 +312,7 @@ public class DB
 		}
 	}
 	
-	public static int countDistinct(String table, String column, String conditions, Object... args) throws Exception
+	public static <T> int countDistinct(Class<T> type, String fieldName, String clause, Object... args) throws Exception
 	{
 		QueryRunner run = new QueryRunner();
 		ResultSetHandler<Integer> h = new ResultSetHandler<Integer>() 
@@ -266,7 +330,28 @@ public class DB
 		Connection conn = DB.getConnection();
 		try
 		{
-		    return run.query(conn, new StringBuilder("SELECT COUNT(DISTINCT(").append(column).append(")) AS COUNT FROM ").append(table).append(" ").append(conditions).toString(), h, args);
+			T t = type.newInstance();
+			
+			String table = t.getClass().getAnnotation(DBTable.class).table();
+			
+			if (!StringUtils.isEmpty(clause))
+			{
+				clause = " " + clause;
+			}
+			
+			Field f = type.getField(fieldName);
+			String columnName = f.getAnnotation(DBColumn.class).name();
+			boolean convertName = f.getAnnotation(DBColumn.class).convertName();
+								
+			// allow the argument to be blank, in which case we'll just use the field name as the column name
+			// replacing any upper case letters with a _<lower> to guess-map it to the db column
+			if (StringUtils.isEmpty(columnName) && convertName)
+			{
+				String field = f.getName();
+				columnName = Util.camelToUnderscore(field);
+			}
+			
+		    return run.query(conn, new StringBuilder("SELECT COUNT(DISTINCT(").append(columnName).append(")) AS COUNT FROM ").append(table).append(clause).toString(), h, args);
 		} 
 		finally 
 		{
@@ -274,7 +359,7 @@ public class DB
 		}
 	}
 	
-	public static double sum(String table, String column, String conditions, Object...args) throws Exception
+	public static <T> double sum(Class<T> type, String fieldName, String clause, Object...args) throws Exception
 	{
 		QueryRunner run = new QueryRunner();
 		ResultSetHandler<Double> h = new ResultSetHandler<Double>() 
@@ -292,7 +377,25 @@ public class DB
 		Connection conn = DB.getConnection();
 		try
 		{
-		    return run.query(conn, new StringBuilder("SELECT SUM(").append(column).append(") AS SUM FROM ").append(table).append(" ").append(conditions).toString(), h, args);
+			String table = type.newInstance().getClass().getAnnotation(DBTable.class).table();
+			if (!StringUtils.isEmpty(clause))
+			{
+				clause = " " + clause;
+			}
+			
+			Field f = type.getField(fieldName);
+			String columnName = f.getAnnotation(DBColumn.class).name();
+			boolean convertName = f.getAnnotation(DBColumn.class).convertName();
+								
+			// allow the argument to be blank, in which case we'll just use the field name as the column name
+			// replacing any upper case letters with a _<lower> to guess-map it to the db column
+			if (StringUtils.isEmpty(columnName) && convertName)
+			{
+				String field = f.getName();
+				columnName = Util.camelToUnderscore(field);
+			}
+			
+		    return run.query(conn, new StringBuilder("SELECT SUM(").append(columnName).append(") AS SUM FROM ").append(table).append(clause).toString(), h, args);
 		} 
 		finally 
 		{
@@ -300,7 +403,7 @@ public class DB
 		}
 	}
 	
-	public static double max(String table, String column, String conditions, Object...args) throws Exception
+	public static <T> double max(Class<T> type, String fieldName, String clause, Object...args) throws Exception
 	{
 		QueryRunner run = new QueryRunner();
 		ResultSetHandler<Double> h = new ResultSetHandler<Double>() 
@@ -318,7 +421,25 @@ public class DB
 		Connection conn = DB.getConnection();
 		try
 		{
-		    return run.query(conn, new StringBuilder("SELECT MAX(").append(column).append(") AS MAX FROM ").append(table).append(" ").append(conditions).toString(), h, args);
+			String table = type.newInstance().getClass().getAnnotation(DBTable.class).table();
+			if (!StringUtils.isEmpty(clause))
+			{
+				clause = " " + clause;
+			}
+
+			Field f = type.getField(fieldName);
+			String columnName = f.getAnnotation(DBColumn.class).name();
+			boolean convertName = f.getAnnotation(DBColumn.class).convertName();
+								
+			// allow the argument to be blank, in which case we'll just use the field name as the column name
+			// replacing any upper case letters with a _<lower> to guess-map it to the db column
+			if (StringUtils.isEmpty(columnName) && convertName)
+			{
+				String field = f.getName();
+				columnName = Util.camelToUnderscore(field);
+			}
+			
+		    return run.query(conn, new StringBuilder("SELECT MAX(").append(columnName).append(") AS MAX FROM ").append(table).append(clause).toString(), h, args);
 		} 
 		finally 
 		{
@@ -326,7 +447,7 @@ public class DB
 		}
 	}
 	
-	public static double min(String table, String column, String conditions, Object...args) throws Exception
+	public static <T> double min(Class<T> type, String fieldName, String clause, Object...args) throws Exception
 	{
 		QueryRunner run = new QueryRunner();
 		ResultSetHandler<Double> h = new ResultSetHandler<Double>() 
@@ -344,7 +465,25 @@ public class DB
 		Connection conn = DB.getConnection();
 		try
 		{
-		    return run.query(conn, new StringBuilder("SELECT MIN(").append(column).append(") AS MIN FROM ").append(table).append(" ").append(conditions).toString(), h, args);
+			String table = type.newInstance().getClass().getAnnotation(DBTable.class).table();
+			if (!StringUtils.isEmpty(clause))
+			{
+				clause = " " + clause;
+			}
+
+			Field f = type.getField(fieldName);
+			String columnName = f.getAnnotation(DBColumn.class).name();
+			boolean convertName = f.getAnnotation(DBColumn.class).convertName();
+								
+			// allow the argument to be blank, in which case we'll just use the field name as the column name
+			// replacing any upper case letters with a _<lower> to guess-map it to the db column
+			if (StringUtils.isEmpty(columnName) && convertName)
+			{
+				String field = f.getName();
+				columnName = Util.camelToUnderscore(field);
+			}
+			
+		    return run.query(conn, new StringBuilder("SELECT MIN(").append(columnName).append(") AS MIN FROM ").append(table).append(clause).toString(), h, args);
 		} 
 		finally 
 		{

@@ -117,7 +117,7 @@ public class AnnotatedDataRowProcessor extends BasicRowProcessor
 					{
 						table = clazz.getSimpleName().toLowerCase();
 					}
-					field.set(data, DB.selectOne(new StringBuilder("SELECT * FROM ").append(table).append(" WHERE ").append(reference).append("_id=?").toString(), clazz, data.getClass().getField("id").getLong(data)));
+					field.set(data, DB.selectOne(clazz, new StringBuilder("WHERE ").append(reference).append("_id=?").toString(), clazz, data.getClass().getField("id").getLong(data)));
 				}
 				else if (field.isAnnotationPresent(DBHasMany.class))
 				{
@@ -132,7 +132,7 @@ public class AnnotatedDataRowProcessor extends BasicRowProcessor
 					{
 						table = ((Class<?>)((ParameterizedType)clazz.getGenericSuperclass()).getActualTypeArguments()[0]).getSimpleName().toLowerCase();
 					}
-					field.set(data, DB.selectAll(new StringBuilder("SELECT * FROM ").append(table).append(" WHERE ").append(reference).append("_id=?").toString(), clazz, data.getClass().getField("id").getLong(data)));
+					field.set(data, DB.selectAll(clazz, new StringBuilder("WHERE ").append(reference).append("_id=?").toString(), clazz, data.getClass().getField("id").getLong(data)));
 				}
 			}
 			return data;

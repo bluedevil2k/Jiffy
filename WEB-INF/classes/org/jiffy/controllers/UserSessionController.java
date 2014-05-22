@@ -24,10 +24,8 @@ public class UserSessionController extends AppController
 		{			
 			String username = input.req.getParameter("username");
 			String password = input.req.getParameter("password");
-					
-		    String sql = "SELECT * FROM user WHERE user_name=? AND is_frozen=false";
-			        			        
-		    User user = DB.selectOne(sql, User.class, username);
+								        			        
+		    User user = DB.selectOne(User.class, "WHERE user_name=? AND is_frozen=false", username);
 					        
 		    UserSession uSess = null;
 					        

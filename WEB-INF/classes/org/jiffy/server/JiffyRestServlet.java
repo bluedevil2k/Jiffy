@@ -22,6 +22,7 @@ import org.jiffy.server.services.Service;
 import org.jiffy.server.services.ServiceRequest;
 import org.jiffy.server.services.ServiceResponse;
 import org.jiffy.util.Constants;
+import org.jiffy.util.Jiffy;
 import org.jiffy.util.LogUtil;
 import org.jiffy.util.Util;
 
@@ -38,7 +39,7 @@ public class JiffyRestServlet extends HttpServlet
 	public void init() throws ServletException
 	{
 		System.out.println("*****************************");
-		System.out.println("***   Jiffy REST Started   ***");
+		System.out.println("***  Jiffy REST Started   ***");
 		System.out.println("*****************************");
 		logger.info("******************************************");
 		logger.info("     Jiffy REST Started.");
@@ -79,7 +80,7 @@ public class JiffyRestServlet extends HttpServlet
 			input.wantsJson = req.getHeader("accept").indexOf("json") > -1;
 			
 			// get the controller
-			Class c = Class.forName("org.jiffy.controllers." + controller + "Controller");
+			Class c = Class.forName(Jiffy.getValue("controllerPackage") + "." + controller + "Controller");
 					
 			// do the REST analysis
 			String method = "";

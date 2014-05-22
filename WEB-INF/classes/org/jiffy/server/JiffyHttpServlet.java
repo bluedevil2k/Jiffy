@@ -31,7 +31,7 @@ import org.jiffy.util.Util;
 
 @WebServlet(name="JiffyHTTP", 
             displayName="JiffyHTTP", 
-            urlPatterns={ "*.serv" }, 
+            urlPatterns={ "*.rpc" }, 
             loadOnStartup=2,
             initParams={ @WebInitParam(name = "nocache", value = "true")})
 public class JiffyHttpServlet extends HttpServlet
@@ -154,7 +154,7 @@ public class JiffyHttpServlet extends HttpServlet
 			input.resp = resp;
 			
 			// get the controller
-			Class c = Class.forName("org.jiffy.controllers." + controller + "Controller");
+			Class c = Class.forName(Jiffy.getValue("controllerPackage") + "." + controller + "Controller");
 			
 			// get the method that will be invoked
 			Method m = c.getMethod(method, ServiceRequest.class);

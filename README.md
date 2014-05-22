@@ -42,16 +42,16 @@ eveything you could want from your DB abstraction layer.
 Examples
 ------
       // To get one User in the database
-      DB.selectOne("SELECT * FROM users WHERE id=?", UserData.class, 1);
+      DB.selectOne(UserData.class, "WHERE id=?", 1);
 
       // To get all the Users in the database
-      DB.selectAll("SELECT * FROM users", UserList.class);
+      DB.selectAll(UserList.class);
       
       // To count the users in the database
-      DB.count("users");
+      DB.count(UserData.class);
       
       // To count the users with a distinct first name
-      DB.countDistinct("users", "first_name");
+      DB.countDistinct(UserData.class, "firstName");
       
       // It can also properly handle transactions
       try
@@ -100,7 +100,7 @@ Example
      public class UserList extends ArrayList<User>
      
      // Use the DB class to populate a List of Users
-     UserList users = DB.selectAll("SELECT * FROM users", UserList.class);
+     UserList users = DB.selectAll(UserList.class);
 
 Controllers
 ======
@@ -110,7 +110,7 @@ services like in Ruby on Rails.  Either way will work, it's up to you which one 
 
 RPC-Style
 ------
-You can define actions in your controller quickly using this style.  This always takes the form of "controller/action.serv", where the ".serv" suffix signifies how you want the domain
+You can define actions in your controller quickly using this style.  This always takes the form of "controller/action.rpc", where the ".rpc" suffix signifies how you want the domain
 to be parsed by the server, RPC-Style as opposed to REST-Style.
 
 In your JSP pages, you should refer to the controllers and the actions in an "underscore" style.  The controllers should then be named in a "camelCase" style.  This is the common setup
@@ -120,7 +120,7 @@ Example of Action-Style Controllers
 -------
 
        <!-- On the HTML page -->
-       <form method="post" action="/user_session/login.serv">
+       <form method="post" action="/user_session/login.rpc">
        
        // Will trigger this function 
        public class UserSessionController
@@ -219,6 +219,11 @@ and the Cache storing Session attributes.  In this way, you can write your multi
 
 NOTE - You should NEVER use the HttpSession object directly when working with Jiffy, as this will restrict your application to running on one JVM.
 
+In Conclusion
+======
+It's been said that a good web app framework needs sessions, authentication, routing, MVC, caching, mobile, templating, ORM, and testability.  Jiffy has all of these things
+right out of the box.  It's the smallest learning curve of any Java web app framework out there.  It might not do everything frameworks like Play!, vert.X and DropWizard do, but it does
+everything you'd need 99% of the time, and take you only half the time.
 
 
 MORE DETAILS COMING
@@ -230,3 +235,4 @@ TODO
 * Find a better JSON->Java implementation - maybe Jackson?
 * Replace the basic ConcurrentHashMap cache with a better more tuned cache from Guava
 * NoSQL support needs to be added
+* Performance on DB calls with many rows and columns is slow - a 1500 row X 35 column SQL query may take 800ms with this code and only 100ms using straight JDBC code

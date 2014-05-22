@@ -9,7 +9,6 @@ import org.jiffy.server.db.DB;
 import org.jiffy.server.db.DBResult;
 import org.jiffy.server.db.annotations.DBColumn;
 import org.jiffy.server.db.annotations.DBTable;
-import org.jiffy.server.security.Security;
 
 @DBTable
 public class User implements Serializable
@@ -91,28 +90,19 @@ public class User implements Serializable
 	public Item item;
 	*/
 			
-	public static User lookup(long id, UserSession session) throws Exception
-	{
-		Security.validateAccess(session, id);
-		return lookup(id);
-	}
-
 	public static User lookup(long id) throws Exception
 	{
-		String sql = "SELECT * FROM user WHERE id=?";
-		return DB.selectOne(sql, User.class, id);
+		return DB.selectOne(User.class, "WHERE id=?", id);
 	}
 
 	public static UserList lookup(String userRole) throws Exception
 	{
-		String sql = "SELECT * FROM user WHERE role=? ORDER BY user_name";
-		return DB.selectAll(sql, UserList.class, userRole);
+		return DB.selectAll(UserList.class, "WHERE role=? ORDER BY user_name", userRole);
 	}
 
 	public static UserList lookup() throws Exception
 	{
-		String sql = "SELECT * FROM user ORDER BY user_name";
-		return DB.selectAll(sql, UserList.class);
+		return DB.selectAll(UserList.class, "ORDER BY user_name");
 	}
 	
 	public static List<Long> getAllUserIDs(String userRole) throws Exception

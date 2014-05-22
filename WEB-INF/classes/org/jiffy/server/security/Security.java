@@ -6,6 +6,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jiffy.models.User;
 import org.jiffy.models.UserSession;
 import org.jiffy.server.Sessions;
 import org.jiffy.util.Constants;
@@ -16,6 +17,12 @@ public class Security
 	
 	public static void validateAccess(UserSession appSession, String[] allowedRoles, String method) throws Exception
 	{	 
+		// if the role is ALL, just allow it without checking
+		if (allowedRoles.length == 1 && StringUtils.equals(allowedRoles[0], User.ALL))
+		{
+			return;
+		}
+		
 		// if the appSession can't be found, throw an invalid access error (500) which will force them to log in again
 	    if (appSession == null)
 	    {

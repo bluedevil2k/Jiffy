@@ -110,7 +110,7 @@ public class Sessions
 
 			try
 			{
-				UserSession session = DB.selectOne("SELECT * FROM user_sessions WHERE session_id=?", UserSession.class, sessionID);
+				UserSession session = DB.selectOne(UserSession.class, "WHERE session_id=?", sessionID);
 				return session;
 			}
 			catch (Exception ex)
