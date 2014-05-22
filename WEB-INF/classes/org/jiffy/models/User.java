@@ -26,8 +26,7 @@ public class User implements Serializable
 	// no access for anyone
 	public static final String NO_ACCESS = "no_one";
 	// everyone is allowed, even those that aren't logged in (e.g. index.jsp)
-	public static final String ALL = "all";
-	
+	public static final String ALL = "all";	
 	
 	@DBColumn
 	public long id;
@@ -92,17 +91,39 @@ public class User implements Serializable
 			
 	public static User lookup(long id) throws Exception
 	{
-		return DB.selectOne(User.class, "WHERE id=?", id);
+		return DB.selectOne(User.class, "WHERE @id@=?", id);
 	}
 
 	public static UserList lookup(String userRole) throws Exception
 	{
-		return DB.selectAll(UserList.class, "WHERE role=? ORDER BY user_name", userRole);
+		return DB.selectAll(UserList.class, "WHERE @role@=? ORDER BY @userName@", userRole);
 	}
 
 	public static UserList lookup() throws Exception
 	{
-		return DB.selectAll(UserList.class, "ORDER BY user_name");
+		return DB.selectAll(UserList.class, "ORDER BY @userName@");
+	}
+	
+	public static User lookupForLogin(String username) throws Exception
+	{
+		return DB.selectOne(User.class, "WHERE @userName@=? AND @isFrozen@=false", username);
+	}
+	
+	public static void markUserAsLoggedIn(String username) throws Exception
+	{
+		DB.update(User.class, "UPDATE @table@ SET @lastLogonTs@=NOW(), @failedAttempts@=0 WHERE @userName@=?", username);
+	}
+	
+	public static void incrementFailedAttempts(String username, int failedAttempts) throws Exception
+	{
+        String updateSql = "UPDATE @table@ SET @failedAttempts@=? WHERE @userName@=?";
+        DB.update(User.class, updateSql, failedAttempts, username);
+	}
+	
+	public static void freezeUser(String username) throws Exception
+	{
+		String failSql = "UPDATE @table@ SET @isFrozen@=true, @failedAttempts@=0 WHERE @userName@=?";
+        DB.update(User.class, failSql, username);
 	}
 	
 	public static List<Long> getAllUserIDs(String userRole) throws Exception
@@ -120,5 +141,10 @@ public class User implements Serializable
 			toReturn.addAll(getAllUserIDs(iter.next()));
 		}
 		return toReturn;
+	}
+	
+	public static void delete(int id) throws Exception
+	{
+		DB.update(User.class, "DELETE FROM @table@ WHERE @id@=?", id);
 	}
 }

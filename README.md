@@ -36,7 +36,7 @@ Database
 The database layer in Jiffy is designed to make it simple to code for, but also scalable to thousands of concurrent users. It was created to be much simpler to use than JPA for people
 that are comfortable writing a little SQL code.
 
-It utilizes connection pooling from Tomcat 7's DBPool class and database utility methods and abstractions from Apache's DBUtils class.  The end result is a DB utility class that handles 
+It utilizes connection pooling from Tomcat 7's DBPool class and database utility methods and abstractions from Apache's DBUtils class.  The end result is a DB utility class that handles
 eveything you could want from your DB abstraction layer.
 
 Examples
@@ -51,7 +51,7 @@ Examples
       DB.count(UserData.class);
       
       // To count the users with a distinct first name
-      DB.countDistinct(UserData.class, "firstName");
+      DB.countDistinct(UserData.class, "@firstName@");
       
       // It can also properly handle transactions
       try
@@ -99,8 +99,8 @@ Example
      // define the class to store many User objects
      public class UserList extends ArrayList<User>
      
-     // Use the DB class to populate a List of Users
-     UserList users = DB.selectAll(UserList.class);
+     // Use the DB class to populate a List of admin Users
+     UserList admins = DB.selectAll(UserList.class, "WHERE @role@=?, "admin");
 
 Controllers
 ======

@@ -5,7 +5,6 @@ import org.jiffy.models.User;
 import org.jiffy.models.UserSession;
 import org.jiffy.server.Flash;
 import org.jiffy.server.Sessions;
-import org.jiffy.server.db.DB;
 import org.jiffy.server.security.PasswordService;
 import org.jiffy.server.services.Service;
 import org.jiffy.server.services.ServiceRequest;
@@ -25,7 +24,7 @@ public class UserSessionController extends AppController
 			String username = input.req.getParameter("username");
 			String password = input.req.getParameter("password");
 								        			        
-		    User user = DB.selectOne(User.class, "WHERE user_name=? AND is_frozen=false", username);
+		    User user = User.lookupForLogin(username);
 					        
 		    UserSession uSess = null;
 					        
@@ -42,7 +41,6 @@ public class UserSessionController extends AppController
 		        String attemptPassword = PasswordService.encrypt(password);
 			        	
 		        String attemptRole = user.role;
-		        long userId = user.id;
 		        int failedAttempts = user.failedAttempts;
 					        	
 		        boolean isPasswordValid = StringUtils.equals(user.password, attemptPassword);
@@ -65,7 +63,7 @@ public class UserSessionController extends AppController
 		        // they logged in successfully
 		        if (logonSuccessful) 
 		        {
-		            DB.update("UPDATE user SET last_logon_ts=NOW(), failed_attempts=0 WHERE user_name=?", username);
+		            User.markUserAsLoggedIn(username);
 		            Sessions.addSession(input.req, input.resp, uSess);
 			    } 
 			    // they entered a valid user name, but incorrect password
@@ -73,13 +71,11 @@ public class UserSessionController extends AppController
 			    {
 			          failedAttempts++;
 				                    
-			          String updateSql = "UPDATE user SET failed_attempts=? WHERE user_name=?";
-			          DB.update(updateSql, failedAttempts, username);
+			          User.incrementFailedAttempts(username, failedAttempts);
 					                    
 			          if (failedAttempts > Jiffy.getInt("numberAllowedFailedLogons")) 
 			          {
-			        	  String failSql = "UPDATE user SET is_frozen=true,failed_attempts=0 WHERE id=?";
-			              DB.update(failSql, userId);
+			        	  User.freezeUser(username);
 			          }
 			                
 			          throw new Exception("logon.error.invalidLogon");

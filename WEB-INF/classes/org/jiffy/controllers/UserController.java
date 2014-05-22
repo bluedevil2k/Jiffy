@@ -2,7 +2,6 @@ package org.jiffy.controllers;
 
 import org.jiffy.models.User;
 import org.jiffy.models.UserList;
-import org.jiffy.server.db.DB;
 import org.jiffy.server.services.Service;
 import org.jiffy.server.services.ServiceRequest;
 import org.jiffy.server.services.ServiceResponse;
@@ -45,8 +44,8 @@ public class UserController extends AppController
 	@Service(access=User.ADMIN)
 	public static ServiceResponse destroy(ServiceRequest input) throws Exception
 	{
-		String sql = "DELETE FROM users WHERE id=?";
-		DB.update(sql, input.id);
+		int id = input.id;
+		User.delete(id);
 		
 		JsonResponse response = new JsonResponse();
 		response.text = "SUCCESS";

@@ -30,7 +30,7 @@ public class UserSession implements Serializable
 	
 	public static long getLoggedInUserCount() throws Exception
 	{
-	  	return DB.countDistinct(UserSession.class, "userId", "WHERE role!='admin'");
+	  	return DB.countDistinct(UserSession.class, "@userId@", "WHERE @role@!='admin'");
 	}
 
 	public static UserSessionList lookup() throws Exception 
@@ -40,17 +40,17 @@ public class UserSession implements Serializable
 	        
 	public static UserSession lookup(String sessionId) throws Exception 
 	{
-	  	return DB.selectOne(UserSession.class, "WHERE session_id=?", sessionId);
+	  	return DB.selectOne(UserSession.class, "WHERE @sessionId@=?", sessionId);
 	}
 
 	public static void deleteSessions() throws Exception 
 	{
-	   	DB.update("DELETE FROM user_session");
+	   	DB.update(UserSession.class, "DELETE FROM @table@");
 	}    
 	    
 	public static void deleteSessions(long userId) throws Exception 
 	{
-	   	DB.update("DELETE FROM user_session WHERE user_id=?", userId);
+	   	DB.update(UserSession.class, "DELETE FROM @table@ WHERE @userId@=?", userId);
 	}    
 	    
 	public static void updateSessionActivity(UserSession session, String requestType) throws Exception 
@@ -58,7 +58,7 @@ public class UserSession implements Serializable
 	    if (session == null)
 	        return;
 	      
-	    DB.update("UPDATE user_session SET last_user_activity=NOW() WHERE session_id=?", session.sessionId);
+	    DB.update(UserSession.class, "UPDATE @table@ SET @lastUserActivity@=NOW() WHERE @sessionId@=?", session.sessionId);
 	}
 	
 	public static void removeInactiveSessions() throws Exception 
@@ -67,10 +67,10 @@ public class UserSession implements Serializable
 	  	long sessionUserActivityTimeout = Jiffy.getInt("sessionUserActivityTimeout");
 	    java.util.Date date = new java.util.Date(currTime - sessionUserActivityTimeout);
 	               
-	    UserSessionList sessions = DB.selectAll(UserSessionList.class, "WHERE last_user_activity < ?", date);
+	    UserSessionList sessions = DB.selectAll(UserSessionList.class, "WHERE @lastUserActivity@ < ?", date);
 	        
-	    String sql = "DELETE FROM user_session WHERE last_user_activity < ?";
-	    DB.update(sql, date);
+	    String sql = "DELETE FROM @table@ WHERE @lastUserActivity@ < ?";
+	    DB.update(UserSession.class, sql, date);
 	        
 	    for (int i=0; i<sessions.size(); i++)
 	    {

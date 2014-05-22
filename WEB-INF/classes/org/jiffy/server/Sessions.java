@@ -61,9 +61,9 @@ public class Sessions
 		}
 
 		// Store it in the database
-		String sql = "INSERT INTO user_session (session_id,user_id,user_name,role,ip_address,logon_time,last_user_activity) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		String sql = "INSERT INTO @table@ (@sessionId@, @userId@, @userName@, @role@, @ipAddress@, @logonTime@, @lastUserActivity@) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-		DB.update(sql, appSession.sessionId, appSession.userId, appSession.userName, appSession.role, appSession.ipAddress, appSession.logonTime, appSession.lastUserActivity);
+		DB.update(UserSession.class, sql, appSession.sessionId, appSession.userId, appSession.userName, appSession.role, appSession.ipAddress, appSession.logonTime, appSession.lastUserActivity);
 
 	}
 
@@ -90,10 +90,10 @@ public class Sessions
 		req.getSession().invalidate();
 
 		// Delete the session from the DB
-		String sql = "DELETE FROM user_session WHERE session_id=?";
+		String sql = "DELETE FROM @table@ WHERE @sessionId@=?";
 		if (appSession != null)
 		{
-			DB.update(sql, appSession.sessionId);
+			DB.update(UserSession.class, sql, appSession.sessionId);
 		}
 	}
 
