@@ -27,15 +27,15 @@ public class UserSession implements Serializable
 	public java.util.Date logonTime;
 	@DBColumn
 	public java.util.Date lastUserActivity;
-	
-	public static long getLoggedInUserCount() throws Exception
-	{
-	  	return DB.countDistinct(UserSession.class, "@userId@", "WHERE @role@!='admin'");
-	}
 
 	public static UserSessionList lookup() throws Exception 
 	{
 	  	return DB.selectAll(UserSessionList.class);
+	}
+	
+	public static long getLoggedInUserCount() throws Exception
+	{
+	  	return DB.countDistinct(UserSession.class, "@userId@", "WHERE @role@!='admin'");
 	}
 	        
 	public static UserSession lookup(String sessionId) throws Exception 

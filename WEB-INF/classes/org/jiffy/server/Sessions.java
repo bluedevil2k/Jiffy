@@ -10,9 +10,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.jiffy.models.UserSession;
 import org.jiffy.server.cache.Cache;
 import org.jiffy.server.db.DB;
-import org.jiffy.server.security.PasswordService;
 import org.jiffy.util.Constants;
 import org.jiffy.util.Jiffy;
+import org.jiffy.util.PasswordUtil;
 
 public class Sessions
 {
@@ -44,7 +44,7 @@ public class Sessions
 		if (StringUtils.equals(sessionType, DATABASE))
 		{
 			// create a random session ID, independent of the JVM's session ID
-			appSession.sessionId = PasswordService.autogeneratePassword(40, PasswordService.ALPHA_NUMERIC);
+			appSession.sessionId = PasswordUtil.autogeneratePassword(40, PasswordUtil.ALPHA_NUMERIC);
 
 			// write that sessionID to the app ID in the cookie
 			Cookies.addCookieExpiresWithBrowser(res, Jiffy.getValue("sessionAppID"), appSession.sessionId);

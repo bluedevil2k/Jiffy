@@ -22,6 +22,7 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.jiffy.server.db.annotations.DBColumn;
 import org.jiffy.server.db.annotations.DBTable;
 import org.jiffy.server.db.handlers.AnnotatedDataRowProcessor;
+import org.jiffy.util.Constants;
 import org.jiffy.util.Jiffy;
 import org.jiffy.util.Util;
 
@@ -68,6 +69,10 @@ public class DB
 		else if (StringUtils.equals(dbEngine, POSTGRESQL))
 		{
 			jdbcDriver = POSTGRESQL_DRIVER;
+		}
+		else if (StringUtils.equals(dbEngine, Constants.NONE))
+		{
+			return;
 		}
 
 		// db parameters
@@ -196,18 +201,12 @@ public class DB
 		Connection conn = DB.getConnection();
 		try
 		{
-			String table = type.newInstance().getClass().getAnnotation(DBTable.class).table();
-			if (StringUtils.isEmpty(table))
-			{
-				table = type.getSimpleName().toLowerCase();
-			}
-			
 			if (!StringUtils.isEmpty(clause))
 			{
 				clause = " " + clause;
 			}
 			
-			T result = run.query(conn, "SELECT * FROM " + table + convertFieldsToColumns(type, clause), h, args);
+			T result = run.query(conn, "SELECT * FROM " + getTableName(type) + convertFieldsToColumns(type, clause), h, args);
 			return result;		        
 		} 
 		finally 
@@ -248,19 +247,13 @@ public class DB
 
 		Connection conn = DB.getConnection();
 		try
-		{
-			String table = t.newInstance().getClass().getAnnotation(DBTable.class).table();
-			if (StringUtils.isEmpty(table))
-			{
-				table = t.getSimpleName().toLowerCase();
-			}
-			
+		{			
 			if (!StringUtils.isEmpty(clause))
 			{
 				clause = " " + clause;
 			}
 			
-		    return (S)run.query(conn, "SELECT * FROM " + table + convertFieldsToColumns(t, clause), h, args);
+		    return (S)run.query(conn, "SELECT * FROM " + getTableName(t) + convertFieldsToColumns(t, clause), h, args);
 		} 
 		finally 
 		{
@@ -282,6 +275,7 @@ public class DB
 			{
 				table = type.getSimpleName().toLowerCase();
 			}
+			table = Util.camelToUnderscore(table);
 
 			sql = StringUtils.replace(sql, "@table@", table);
 			
@@ -302,6 +296,7 @@ public class DB
 		{
 			table = type.getSimpleName().toLowerCase();
 		}
+		table = Util.camelToUnderscore(table);
 
 		sql = StringUtils.replace(sql, "@table@", table);
 		
@@ -326,18 +321,12 @@ public class DB
 		Connection conn = DB.getConnection();
 		try
 		{
-			String table = type.newInstance().getClass().getAnnotation(DBTable.class).table();
-			if (StringUtils.isEmpty(table))
-			{
-				table = type.getSimpleName().toLowerCase();
-			}
-			
 			if (!StringUtils.isEmpty(clause))
 			{
 				clause = " " + clause;
 			}
 			
-		    return run.query(conn, new StringBuilder("SELECT COUNT(*) AS COUNT FROM ").append(table).append(convertFieldsToColumns(type, clause)).toString(), h, args);
+		    return run.query(conn, new StringBuilder("SELECT COUNT(*) AS COUNT FROM ").append(getTableName(type)).append(convertFieldsToColumns(type, clause)).toString(), h, args);
 		} 
 		finally 
 		{
@@ -363,18 +352,12 @@ public class DB
 		Connection conn = DB.getConnection();
 		try
 		{
-			String table =  type.newInstance().getClass().getAnnotation(DBTable.class).table();
-			if (StringUtils.isEmpty(table))
-			{
-				table = type.getSimpleName().toLowerCase();
-			}
-			
 			if (!StringUtils.isEmpty(clause))
 			{
 				clause = " " + clause;
 			}
 			
-		    return run.query(conn, new StringBuilder("SELECT COUNT(DISTINCT(").append(convertFieldsToColumns(type, fieldName)).append(")) AS COUNT FROM ").append(table).append(convertFieldsToColumns(type, clause)).toString(), h, args);
+		    return run.query(conn, new StringBuilder("SELECT COUNT(DISTINCT(").append(convertFieldsToColumns(type, fieldName)).append(")) AS COUNT FROM ").append(getTableName(type)).append(convertFieldsToColumns(type, clause)).toString(), h, args);
 		} 
 		finally 
 		{
@@ -400,18 +383,12 @@ public class DB
 		Connection conn = DB.getConnection();
 		try
 		{
-			String table = type.newInstance().getClass().getAnnotation(DBTable.class).table();
-			if (StringUtils.isEmpty(table))
-			{
-				table = type.getSimpleName().toLowerCase();
-			}
-			
 			if (!StringUtils.isEmpty(clause))
 			{
 				clause = " " + clause;
 			}
 			
-		    return run.query(conn, new StringBuilder("SELECT SUM(").append(convertFieldsToColumns(type, fieldName)).append(") AS SUM FROM ").append(table).append(convertFieldsToColumns(type, clause)).toString(), h, args);
+		    return run.query(conn, new StringBuilder("SELECT SUM(").append(convertFieldsToColumns(type, fieldName)).append(") AS SUM FROM ").append(getTableName(type)).append(convertFieldsToColumns(type, clause)).toString(), h, args);
 		} 
 		finally 
 		{
@@ -437,18 +414,12 @@ public class DB
 		Connection conn = DB.getConnection();
 		try
 		{
-			String table = type.newInstance().getClass().getAnnotation(DBTable.class).table();
-			if (StringUtils.isEmpty(table))
-			{
-				table = type.getSimpleName().toLowerCase();
-			}
-			
 			if (!StringUtils.isEmpty(clause))
 			{
 				clause = " " + clause;
 			}
 			
-		    return run.query(conn, new StringBuilder("SELECT MAX(").append(convertFieldsToColumns(type, fieldName)).append(") AS MAX FROM ").append(table).append(convertFieldsToColumns(type, clause)).toString(), h, args);
+		    return run.query(conn, new StringBuilder("SELECT MAX(").append(convertFieldsToColumns(type, fieldName)).append(") AS MAX FROM ").append(getTableName(type)).append(convertFieldsToColumns(type, clause)).toString(), h, args);
 		} 
 		finally 
 		{
@@ -474,23 +445,30 @@ public class DB
 		Connection conn = DB.getConnection();
 		try
 		{
-			String table = type.newInstance().getClass().getAnnotation(DBTable.class).table();
-			if (StringUtils.isEmpty(table))
-			{
-				table = type.getSimpleName().toLowerCase();
-			}
-			
 			if (!StringUtils.isEmpty(clause))
 			{
 				clause = " " + clause;
 			}
 
-		    return run.query(conn, new StringBuilder("SELECT MIN(").append(convertFieldsToColumns(type, fieldName)).append(") AS MIN FROM ").append(table).append(convertFieldsToColumns(type, clause)).toString(), h, args);
+		    return run.query(conn, new StringBuilder("SELECT MIN(").append(convertFieldsToColumns(type, fieldName)).append(") AS MIN FROM ").append(getTableName(type)).append(convertFieldsToColumns(type, clause)).toString(), h, args);
 		} 
 		finally 
 		{
 		    DbUtils.close(conn);  
 		}
+	}
+	
+	private static <T> String getTableName(Class<T> type) throws Exception
+	{
+		String table = type.newInstance().getClass().getAnnotation(DBTable.class).table();
+		
+		if (StringUtils.isEmpty(table))
+		{
+			table = type.getSimpleName().toLowerCase();
+		}
+		table = Util.camelToUnderscore(table);
+		
+		return table;
 	}
 	
 	private static <T> String convertFieldsToColumns(Class<T> type, String sql) throws Exception

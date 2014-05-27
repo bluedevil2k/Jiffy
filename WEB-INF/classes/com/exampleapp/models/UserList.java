@@ -1,4 +1,4 @@
-package org.jiffy.models;
+package com.exampleapp.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;

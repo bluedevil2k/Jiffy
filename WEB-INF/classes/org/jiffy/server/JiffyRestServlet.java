@@ -15,8 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jiffy.models.User;
 import org.jiffy.models.UserSession;
+import org.jiffy.server.security.Roles;
 import org.jiffy.server.security.Security;
 import org.jiffy.server.services.Service;
 import org.jiffy.server.services.ServiceRequest;
@@ -25,6 +25,8 @@ import org.jiffy.util.Constants;
 import org.jiffy.util.Jiffy;
 import org.jiffy.util.LogUtil;
 import org.jiffy.util.Util;
+
+import com.exampleapp.models.User;
 
 @WebServlet(name="JiffyREST", 
             displayName="JiffyREST", 
@@ -78,9 +80,19 @@ public class JiffyRestServlet extends HttpServlet
 			input.resp = resp;
 			input.id = ID;
 			input.wantsJson = req.getHeader("accept").indexOf("json") > -1;
-			
+
 			// get the controller
-			Class c = Class.forName(Jiffy.getValue("controllerPackage") + "." + controller + "Controller");
+			// look for Jiffy pre-defined controllers first, then look in the user-defined folder			
+			Class c = null;
+			
+			if (StringUtils.equals(controller, "UserSession"))
+			{
+				c = Class.forName("org.jiffy.UserSessionController");
+			}
+			else
+			{
+				c = Class.forName(Jiffy.getValue("controllerPackage") + "." + controller + "Controller");
+			}			
 					
 			// do the REST analysis
 			String method = "";
@@ -129,18 +141,18 @@ public class JiffyRestServlet extends HttpServlet
 			
 			
 			// if there's no role defined, or the NO_USERS is specifically defined, it's an invalid access
-			if (StringUtils.isEmpty(role) || StringUtils.equals(role, User.NO_ACCESS))
+			if (StringUtils.isEmpty(role) || StringUtils.equals(role, Roles.NO_ACCESS))
 			{
 				throw new Exception(Constants.INVALID_ACCESS);
 			}
 				
 			// a group of roles is defined, access check them
-			if (StringUtils.equals(role, User.ANY_ROLE))
+			if (StringUtils.equals(role, Roles.ALL_ROLES))
 			{
-				Security.validateAccess(appSess, User.ALL_ROLES, method);
+				Security.validateAccess(appSess, Roles.ALL_SYSTEM_ROLES, method);
 			}
 			// do no access checks
-			else if (StringUtils.equals(role, User.ALL))
+			else if (StringUtils.equals(role, Roles.ALL))
 			{
 				
 			}

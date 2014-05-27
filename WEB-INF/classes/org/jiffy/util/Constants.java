@@ -19,4 +19,6 @@ public class Constants
 	public static final String ERROR = "ERROR";	
 	public static final String INVALID_ACCESS = "error.invalidAccess";
 	public static final String EXCEPTION = "exception";
+	public static final String NONE = "none";
+	
 }

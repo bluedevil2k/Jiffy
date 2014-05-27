@@ -15,10 +15,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jiffy.models.User;
 import org.jiffy.models.UserSession;
 import org.jiffy.server.cache.Cache;
 import org.jiffy.server.db.DB;
+import org.jiffy.server.security.Roles;
 import org.jiffy.server.security.Security;
 import org.jiffy.server.services.Service;
 import org.jiffy.server.services.ServiceRequest;
@@ -28,6 +28,8 @@ import org.jiffy.util.Constants;
 import org.jiffy.util.Jiffy;
 import org.jiffy.util.LogUtil;
 import org.jiffy.util.Util;
+
+import com.exampleapp.models.User;
 
 @WebServlet(name="JiffyHTTP", 
             displayName="JiffyHTTP", 
@@ -97,22 +99,14 @@ public class JiffyHttpServlet extends HttpServlet
 				if (Jiffy.getBool("isSingleServerDeploy"))
 				{
 					UserSession.deleteSessions();
-				}
-				
-				// start the session updater thread
-		        UserSessionUpdaterThread sessionUpdater = new UserSessionUpdaterThread();
-		        Thread t2 = new Thread(sessionUpdater);
-		        t2.start();
+
+					// start the session updater thread
+			        UserSessionUpdaterThread sessionUpdater = new UserSessionUpdaterThread();
+			        Thread t2 = new Thread(sessionUpdater);
+			        t2.start();
+				}				
 			}
-			
-			////////////////
-			// Preload the caches if and only if it's the "admin" server
-			////////////////
-			if (isAdminServer)
-			{
-				
-			}
-			
+						
 			//////////////////
 			// Log other settings about the server
 			//////////////////
@@ -137,7 +131,7 @@ public class JiffyHttpServlet extends HttpServlet
     	req.setCharacterEncoding("UTF-8");
     	    	    	
 		// parse in the incoming request
-		String requestURI = req.getRequestURI().substring(1, req.getRequestURI().length() - 5);
+		String requestURI = req.getRequestURI().substring(1, req.getRequestURI().length() - 4);
 		String controller = StringUtils.capitalize(Util.underscoreToCamel(requestURI.substring(0, requestURI.indexOf("/"))));
 		String method = StringUtils.lowerCase(Util.underscoreToCamel(requestURI.substring(requestURI.indexOf("/") + 1)));
 		
@@ -154,7 +148,17 @@ public class JiffyHttpServlet extends HttpServlet
 			input.resp = resp;
 			
 			// get the controller
-			Class c = Class.forName(Jiffy.getValue("controllerPackage") + "." + controller + "Controller");
+			// look for Jiffy pre-defined controllers first, then look in the user-defined folder			
+			Class c = null;
+			
+			if (StringUtils.equals(controller, "UserSession"))
+			{
+				c = Class.forName("org.jiffy.UserSessionController");
+			}
+			else
+			{
+				c = Class.forName(Jiffy.getValue("controllerPackage") + "." + controller + "Controller");
+			}			
 			
 			// get the method that will be invoked
 			Method m = c.getMethod(method, ServiceRequest.class);
@@ -168,19 +172,19 @@ public class JiffyHttpServlet extends HttpServlet
 			// read all the roles allowed on the service method
 			String role = m.getAnnotation(Service.class).access();
 			
-			// if there's no role defined, or the NO_USERS is specifically defined, it's an invalid access
-			if (StringUtils.isEmpty(role) || StringUtils.equals(role, User.NO_ACCESS))
+			// if there's no role defined, or the NO_ACCESS is specifically defined, it's an invalid access
+			if (StringUtils.isEmpty(role) || StringUtils.equals(role, Roles.NO_ACCESS))
 			{
 				throw new Exception(Constants.INVALID_ACCESS);
 			}
 				
 			// a group of roles is defined, access check them
-			if (StringUtils.equals(role, User.ANY_ROLE))
+			if (StringUtils.equals(role, Roles.ALL_ROLES))
 			{
-				Security.validateAccess(appSess, User.ALL_ROLES, method);
+				Security.validateAccess(appSess, Roles.ALL_SYSTEM_ROLES, method);
 			}
 			// do no access checks
-			else if (StringUtils.equals(role, User.ALL))
+			else if (StringUtils.equals(role, Roles.ALL))
 			{
 				
 			}

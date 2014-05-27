@@ -6,10 +6,10 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jiffy.models.User;
 import org.jiffy.models.UserSession;
 import org.jiffy.server.Sessions;
 import org.jiffy.util.Constants;
+import org.jiffy.util.PasswordUtil;
 
 public class Security
 {
@@ -18,7 +18,7 @@ public class Security
 	public static void validateAccess(UserSession appSession, String[] allowedRoles, String method) throws Exception
 	{	 
 		// if the role is ALL, just allow it without checking
-		if (allowedRoles.length == 1 && StringUtils.equals(allowedRoles[0], User.ALL))
+		if (allowedRoles.length == 1 && StringUtils.equals(allowedRoles[0], Roles.ALL))
 		{
 			return;
 		}
@@ -110,7 +110,7 @@ public class Security
 	    
         // check the CSRF token in the form being submitted against the expected token
         String csrf = request.getParameter("csrf");
-        String csrf_check = PasswordService.encrypt(appSession.sessionId);
+        String csrf_check = PasswordUtil.encrypt(appSession.sessionId);
         if (!StringUtils.equals(csrf, csrf_check))
         {
 	    	throw new Exception(Constants.INVALID_ACCESS);

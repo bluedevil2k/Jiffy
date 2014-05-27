@@ -25,7 +25,7 @@ public class Jiffy  extends Properties
 	
 	private static void init(String propName) throws Exception 
 	{
-		_jiffy.load(Jiffy.class.getResourceAsStream("/config/"+propName));
+		_jiffy.load(Jiffy.class.getResourceAsStream(propName));
 	}
 	
 	public static String getValue(String key)

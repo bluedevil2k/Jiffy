@@ -1,4 +1,4 @@
-package org.jiffy.server.security;
+package org.jiffy.util;
 
 import java.security.MessageDigest;
 
@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import sun.misc.BASE64Encoder;
 
-public final class PasswordService  {
+public final class PasswordUtil  {
 
 	public static final String THREE_OF_FOUR = "three_of_four";
 	public static final String ALPHA_NUMERIC = "alpha_numeric";
