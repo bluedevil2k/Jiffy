@@ -1,7 +1,7 @@
 Jiffy
 =====
 
-Jiffy is a quick and easy Java Web App Framework for highly scalable applications.
+Jiffy is a quick and easy Java Web App Framework for highly scalable applications.  (Apache 2.0 License)
 
 The Basics
 =====
