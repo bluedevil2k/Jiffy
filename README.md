@@ -65,7 +65,8 @@ Building Blocks of Jiffy
 * Works with MySQL, MariaDB and Postres databases
 * Works with any memcached client (tested with Couchbase)
 
-### Database
+Database
+=======
 
 The database layer in Jiffy is designed to make it simple to code for, but also scalable to thousands of concurrent users. It was created to be much simpler to use than JPA for people
 that are comfortable writing a little SQL code.
@@ -73,8 +74,8 @@ that are comfortable writing a little SQL code.
 It utilizes connection pooling from Tomcat 7's DBPool class and database utility methods and abstractions from Apache's DBUtils class.  The end result is a DB utility class that handles
 eveything you could want from your DB abstraction layer.
 
-Examples
-------
+#### DB Examples
+
       // To get one User in the database
       DB.selectOne(UserData.class, "WHERE id=?", 1);
 
@@ -103,8 +104,8 @@ Model
 
 The model layer is closely tied into the Database layer for a seamless integration just by using a few Annotations.
 
-Examples
------
+#### Model Examples
+
      @DBTable
      public class User
      {
@@ -128,8 +129,8 @@ Model & DB Integration
 With the Model classes annotated properly, the DB abstraction layer can use introspection and reflection to create and map all the database fields into the Java objects.  Additionally,
 the integration has been set up to create an ArrayList of objects when more than 1 object is returned from the SQL.
 
-Example
------
+#### Model/DB Example
+
      // define the class to store many User objects
      public class UserList extends ArrayList<User>
      
@@ -150,8 +151,8 @@ to be parsed by the server, RPC-Style as opposed to REST-Style.
 In your JSP pages, you should refer to the controllers and the actions in an "underscore" style.  The controllers should then be named in a "camelCase" style.  This is the common setup
 for all Java/PHP/Ruby frameworks.  The conversion happens automatically on the server.
 
-Example of RPC-Style Controllers
--------
+##### Example of RPC-Style Controllers
+
 
        <!-- On the HTML page -->
        <form method="post" action="/user_session/login.rpc">
@@ -173,8 +174,8 @@ The REST style implementation of the controllers has been copied directly from R
      POST w/ ID => update()
      PUT w/ ID => update()
  
-Example of REST-Style Controllers
--------
+##### Example of REST-Style Controllers
+
 
        <!-- On the HTML page -->
        <form method="post" action="/user/1">
@@ -184,13 +185,17 @@ Example of REST-Style Controllers
        {
           public static ServiceResponse update(ServiceRequest input){}
        }
-
+       
+Parameters
+------
 
 The Objects ServiceRequest and ServiceResponse contain all the request attributes you need to parse the request and the response contains all the attributes needed for a response.
 
     String username = input.req.getParameter("username");
-    String password = input.req.getParameter("password"); 
+    String password = input.req.getParameter("password");
     
+Responses
+-------
 Then, at the end of your method, you can return the proper response type, either a HttpResponse, JsonResponse, ErrorResponse, or NoResponse. The server will handle
 everything for you from that point.
 
@@ -227,8 +232,8 @@ Any configuration you place into one of the properties files will be accessible 
 Jiffy loads up 3 configuration files, 1)  jiffy.properties  2) environment.properties 3) ENVIRONMENT.properties with each property file overriding the settings already loaded.  This lets you nest
 configurations and specify settings specific to only one deployment.
 
-Example
-------
+### Config Example
+
       // In jiffy.properties
       dbPassword = ABCDEF123
       
