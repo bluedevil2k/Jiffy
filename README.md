@@ -42,12 +42,14 @@ problems only exist in the most complex 5% of web applications.  For the other 9
     
 ####  The same code in Jiffy
 
-   public static ServiceResponse index(ServiceInput input) {
-      int result = intensiveComputation();
-      HttpResponse response = new HttpResponse();
-      response.nextPage = "/index.jsp";
-      return response;
-   }
+     public static ServiceResponse index(ServiceInput input) {
+          int result = intensiveComputation();
+          HttpResponse response = new HttpResponse();
+          response.nextPage = "/index.jsp";
+          return response;
+     }
+
+(Just to be clear, I LOVE Play!, especially version 1, but it's not a solution for everyone).
 
 Building Blocks of Jiffy
 -------
