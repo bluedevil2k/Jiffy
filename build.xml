@@ -67,7 +67,7 @@
             <fileset dir="${webapp}\jsp\" includes="**/*.jsp,**/*.css,**/*.js,**/*.html"/>
         </copy>
     	<copy todir="${tempbuild}\webapp\ROOT\WEB-INF">
-            <fileset dir="${webapp}\WEB-INF" includes="*.xml,*.tld"/>
+            <fileset dir="${webapp}\WEB-INF" includes="*.xml"/>
         </copy>
         <copy todir="${tempbuild}\webapp\ROOT\WEB-INF\lib">
             <fileset dir="${webapp}\WEB-INF\lib" includes="*.*"/>

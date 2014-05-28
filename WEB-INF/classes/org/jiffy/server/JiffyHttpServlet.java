@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 import org.jiffy.models.UserSession;
 import org.jiffy.server.cache.Cache;
 import org.jiffy.server.db.DB;
+import org.jiffy.server.db.KeyValueDB;
 import org.jiffy.server.security.Roles;
 import org.jiffy.server.security.Security;
 import org.jiffy.server.services.Service;
@@ -28,8 +29,6 @@ import org.jiffy.util.Constants;
 import org.jiffy.util.Jiffy;
 import org.jiffy.util.LogUtil;
 import org.jiffy.util.Util;
-
-import com.exampleapp.models.User;
 
 @WebServlet(name="JiffyHTTP", 
             displayName="JiffyHTTP", 
@@ -69,6 +68,13 @@ public class JiffyHttpServlet extends HttpServlet
 			DB.init();
 			System.out.println("***** DB Initialized");
 			logger.info("***** DB Initialized");
+
+			////////////////
+			// Init the Key/Value DB
+			////////////////
+			KeyValueDB.init();
+			System.out.println("***** K/V DB Initialized");
+			logger.info("***** K/V DB Initialized");
 			
 			////////////////
 			// Init the Cache

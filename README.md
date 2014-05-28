@@ -6,15 +6,48 @@ Jiffy is a quick and easy Java Web App Framework for highly scalable application
 The Basics
 =====
 
-Jiffy is designed to allow you to quickly create a scalable and performant web application using Java.  It's inspired from my work in other frameworks 
-like Ruby on Rails, PHP's CodeIgniter, and Java's Play! framework.  It's design goals are simple:
+Jiffy is designed to allow you to quickly create a scalable and performant web application using Java.  It's inspiration comes after working with other frameworks
+like Java's Play! framework, Ruby on Rails, and PHP's CodeIgniter.  It's design goals are simple:
+
+* Allow intro-level and moderate-level Java programmers to use it
 * Get an app up and running as quickly as possible
 * Be as easy to learn as possible from a few examples
-* Allow moderate-level Java programmers to use it
 * Convention over configuration to the extreme
-* Get an application that will scale to tens of thousands of users out of the box
+* Get an application that will scale to thousands of users out of the box
 
-To be blunt, frameworks like Play! have a large learning curve - sometimes you just want to quickly throw together a web application using Java.
+To be honest, I feel there is a HUGE discrepency between current Java web application frameworks like Play!, DropWizard, and vert.X and the skill level of a majority of Java programmers
+(If you don't know the skill level of most Java programmers, just visit StackOverflow sometime).  For all these programmers, the popular frameworks are unusable.  The learning curve and
+level of skill required to use these frameworks correctly are beyond the intro-level and moderate-level Java programmer.  While these frameworks are solving real-world problems, these
+problems only exist in the most complex 5% of web applications.  For the other 95%, a simple and easy framework like Jiffy will give you everything you need with a much smaller learning curve.
+
+
+####  Play! 2's complex example
+
+    public static Promise<Result> index() {
+      Promise<Integer> promiseOfInt = Promise.promise(
+        new Function0<Integer>() {
+          public Integer apply() {
+            return intensiveComputation();
+          }
+        }
+      );
+      return promiseOfInt.map(
+          new Function<Integer, Result>() {
+            public Result apply(Integer i) {
+              return ok("Got result: " + i);
+            } 
+          }
+        );
+    }
+    
+####  The same code in Jiffy
+
+   public static ServiceResponse index(ServiceInput input) {
+      int result = intensiveComputation();
+      HttpResponse response = new HttpResponse();
+      response.nextPage = "/index.jsp";
+      return response;
+   }
 
 Building Blocks of Jiffy
 -------
@@ -30,8 +63,7 @@ Building Blocks of Jiffy
 * Works with MySQL, MariaDB and Postres databases
 * Works with any memcached client (tested with Couchbase)
 
-Database
-=====
+### Database
 
 The database layer in Jiffy is designed to make it simple to code for, but also scalable to thousands of concurrent users. It was created to be much simpler to use than JPA for people
 that are comfortable writing a little SQL code.
@@ -116,7 +148,7 @@ to be parsed by the server, RPC-Style as opposed to REST-Style.
 In your JSP pages, you should refer to the controllers and the actions in an "underscore" style.  The controllers should then be named in a "camelCase" style.  This is the common setup
 for all Java/PHP/Ruby frameworks.  The conversion happens automatically on the server.
 
-Example of Action-Style Controllers
+Example of RPC-Style Controllers
 -------
 
        <!-- On the HTML page -->
@@ -126,6 +158,29 @@ Example of Action-Style Controllers
        public class UserSessionController
        {
           public static ServiceResponse login(ServiceRequest input){}
+       }
+
+REST-Style
+-----
+The REST style implementation of the controllers has been copied directly from Rails.  The 5 possible REST actions are mapped directly to 5 method names in the controller.
+
+     GET => index()
+     POST => create()
+     GET w/ ID => show()
+     DELETE w/ ID => destroy()
+     POST w/ ID => update()
+     PUT w/ ID => update()
+ 
+Example of REST-Style Controllers
+-------
+
+       <!-- On the HTML page -->
+       <form method="post" action="/user/1">
+       
+       // Will trigger this function 
+       public class UserController
+       {
+          public static ServiceResponse update(ServiceRequest input){}
        }
 
 
@@ -154,11 +209,11 @@ Every Controller and JSP has the ability to add Access control to it for certain
 for the function
 
     // only the ADMIN can access this function - all others will get a 500 error
-    @Service(access=User.ADMIN)
+    @Service(access=Roles.ADMIN)
 	public static ServiceResponse index(ServiceRequest input) throws Exception
 	
 	// or in a JSP file
-    Security.validateAccess(request, User.ADMIN);
+    Security.validateAccess(request, Roles.ADMIN);
 
 Jiffy Configuration Files
 ====
@@ -192,18 +247,7 @@ The result of these configurations lets you set global variables, and environmen
 their own variables for their own environment.  
 
 NOTE - the file "local.properties" is included in the .gitignore file, so feel free to store local passwords and api keys there.
-
-Cache
-=====
-There is an easy to use Cache class that lets you place items in cache for fast read/write access.  The Cache class serves as an abstraction to the underlying cache implementation.  The underlying
-cache implementation is dependent on the setup chosen - single server deployments will utilize the JVM cache, and store items in a ConcurrentHashMap for optimal speed, while a multi-server
-deployment will store items in Couchbase, which wraps around a memcached solution.
-
-In beauty of the abstraction is that you can write your Java application agnostic to the future deployment and whether the app will be running on 1 JVM or many JVM's.  Experienced Java devs
-know this has not always been easy.
-
-     Cache.set("1", "Apple");
-     String apple = Cache.get("1");
+   
 
 Sessions
 =====
@@ -219,20 +263,42 @@ and the Cache storing Session attributes.  In this way, you can write your multi
 
 NOTE - You should NEVER use the HttpSession object directly when working with Jiffy, as this will restrict your application to running on one JVM.
 
+
+Cache
+=====
+There is an easy to use Cache class that lets you place items in cache for fast read/write access.  The Cache class serves as an abstraction to the underlying cache implementation.  The underlying
+cache implementation is dependent on the setup chosen - single server deployments will utilize the JVM cache, and store items in a ConcurrentHashMap for optimal speed, while a multi-server
+deployment will store items in Couchbase, which wraps around a memcached solution.
+
+In beauty of the abstraction is that you can write your Java application agnostic to the future deployment and whether the app will be running on 1 JVM or many JVM's.  Experienced Java devs
+know this has not always been easy.
+
+     Cache.set("1", "Apple");
+     String apple = Cache.get("1");
+
+
+Other Features
+========
+Documentation will be expanded to explain these more
+
+* Key/Value DB - a simple persistent Key/Value store backed by Couchbase
+* All JS/CSS/Images are cached and compressed automatically, for quicker page load speeds on the client
+* Flash - store messages and other objects going back to the client on the next page in the Flash object on the server so they are available on the JSP page
+* Many Util classes for dealing with common Java issues - LogUtil, MathUtil, NumberUtil, PasswordUtil, PusherUtil, TimeUtil, TwilioUtil, ZipUtil
+* Includes the Parallel utility, to run tasks in Parallel without using Java 8
+
+
 In Conclusion
 ======
 It's been said that a good web app framework needs sessions, authentication, routing, MVC, caching, mobile, templating, ORM, and testability.  Jiffy has all of these things
 right out of the box.  It's the smallest learning curve of any Java web app framework out there.  It might not do everything frameworks like Play!, vert.X and DropWizard do, but it does
-everything you'd need 99% of the time, and take you only half the time.
+everything you'd need 95% of the time, and will get you up running 50% faster.
 
-
-MORE DETAILS COMING
-=====
 
 TODO
 =====
 * REST functionality is still a little messy
 * Find a better JSON->Java implementation - maybe Jackson?
 * Replace the basic ConcurrentHashMap cache with a better more tuned cache from Guava
-* NoSQL support needs to be added
+* MongoDB support probably needs to be added
 * Performance on DB calls with many rows and columns is slow - a 1500 row X 35 column SQL query may take 800ms with this code and only 100ms using straight JDBC code

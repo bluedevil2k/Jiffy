@@ -15,8 +15,6 @@ import org.jiffy.util.Constants;
 import org.jiffy.util.Jiffy;
 import org.jiffy.util.LogUtil;
 import org.jiffy.util.PasswordUtil;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import com.exampleapp.models.User;
 import com.exampleapp.models.UserList;
@@ -31,7 +29,7 @@ public class UserController extends AppController
 		if (input.wantsJson)
 		{
 			JsonResponse response = new JsonResponse();
-			response.text = new JSONArray(s).toString();
+			response.jsonArray = s.toArray();
 			return response;
 		}
 		else
@@ -48,7 +46,7 @@ public class UserController extends AppController
 		User u = User.lookup(input.id);
 
 		JsonResponse response = new JsonResponse();
-		response.text = new JSONObject(u).toString();
+		response.jsonObject = u;
 		return response;
 	}
 	
@@ -59,7 +57,7 @@ public class UserController extends AppController
 		User.delete(id);
 		
 		JsonResponse response = new JsonResponse();
-		response.text = "SUCCESS";
+		response.jsonObject = "SUCCESS";
 		return response;
 	}
 	
