@@ -286,7 +286,6 @@ know this has not always been easy.
 
 Other Features
 ========
-Documentation will be expanded to explain these more
 
 * All JS/CSS/Images are cached and compressed automatically, for quicker page load speeds on the client
 * Flash - store messages and other objects going back to the client on the next page in the Flash object on the server so they are available on the JSP page
