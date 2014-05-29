@@ -165,7 +165,7 @@ for all Java/PHP/Ruby frameworks.  The conversion happens automatically on the s
 
 REST-Style
 -----
-The REST style implementation of the controllers has been copied directly from Rails.  The 5 possible REST actions are mapped directly to 5 method names in the controller.
+The REST style implementation of the controllers has been copied directly from Rails.  The 6 possible REST actions are mapped directly to 6 method names in the controller.
 
      GET => index()
      POST => create()
@@ -288,7 +288,6 @@ Other Features
 ========
 Documentation will be expanded to explain these more
 
-* Key/Value DB - a simple persistent Key/Value store backed by Couchbase
 * All JS/CSS/Images are cached and compressed automatically, for quicker page load speeds on the client
 * Flash - store messages and other objects going back to the client on the next page in the Flash object on the server so they are available on the JSP page
 * Many Util classes for dealing with common Java issues - LogUtil, MathUtil, NumberUtil, PasswordUtil, PusherUtil, TimeUtil, TwilioUtil, ZipUtil
