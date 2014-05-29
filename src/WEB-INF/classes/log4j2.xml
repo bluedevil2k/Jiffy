@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+	# DEBUG - The DEBUG Level designates fine-grained informational events that are most useful to debug an application.
+	# INFO - The INFO level designates informational messages that highlight the progress of the application at coarse-grained level.
+	# WARN - The WARN level designates potentially harmful situations.
+	# ERROR - The ERROR level designates error events that might still allow the application to continue running.
+	# FATAL - The FATAL level designates very severe error events that will presumably lead the application to abort. 
+ -->
+
+<configuration status="WARN" strict="true">
+
+	<properties>
+		<property name="path">/jiffy/logs/</property>
+		<property name="main-file">jiffy.log</property>
+		<property name="access-file">jiffy-access.log</property>
+	</properties>
+	
+	<appenders>
+		<appender type="File" name="MainFile" fileName="${path}${main-file}">
+			<layout type="PatternLayout" pattern="%d %p %m%n"></layout>
+		</appender>
+		<appender type="File" name="AccessLog" fileName="${path}${access-file}">
+			<layout type="PatternLayout" pattern="%d %p %m%n"></layout>
+		</appender>
+	</appenders>
+	
+	<loggers>
+		<logger name="org.jiffy.security" level="DEBUG" additivity="false">
+			<appender-ref ref="AccessLog" />
+		</logger>
+		<logger name="org.jiffy" level="DEBUG" additivity="false">
+			<appender-ref ref="MainFile" />
+		</logger>
+		<logger name="custom" level="DEBUG" additivity="false">
+			<appender-ref ref="MainFile" />
+		</logger>
+		<root level="ERROR">
+			<appender-ref ref="MainFile" />
+		</root>
+	</loggers>
+	
+</configuration>

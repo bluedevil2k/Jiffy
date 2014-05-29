@@ -1,12 +1,12 @@
 Jiffy
 =====
 
-Jiffy is a quick and easy Java Web App Framework for highly scalable applications.  (Apache 2.0 License)
+Jiffy is a quick and easy Java Web App Framework for highly scalable applications.
 
 The Basics
 =====
 
-Jiffy is designed to allow you to quickly create a scalable and performant web application using Java.  It's inspiration comes after working with other frameworks
+Jiffy is designed to allow you to quickly create a scalable and performant web application using Java.  Its inspiration comes after working with other frameworks
 like Java's Play! framework, Ruby on Rails, and PHP's CodeIgniter.  It's design goals are simple:
 
 * Allow intro-level and moderate-level Java programmers to use it
@@ -178,7 +178,7 @@ The REST style implementation of the controllers has been copied directly from R
 
 
        <!-- On the HTML page -->
-       <form method="post" action="/user/1">
+       <form method="post" action="/rest/user/1">
        
        // Will trigger this function 
        public class UserController
@@ -302,10 +302,18 @@ right out of the box.  It's the smallest learning curve of any Java web app fram
 everything you'd need 95% of the time, and will get you up running 50% faster.
 
 
+Deployment
+======
+Download all the files in the lib directory of the project, which includes the jiffy.jar file as well as all its dependencies.  Place all the JAR files in your web application's
+WEB-INF/lib folder.  Place all the PROPERTIES and XML files in your web application's WEB-INF/classes folder.  Use the code in the examples folder as a guide to get started.
+
+The db folder of the project contains an SQL script to set up the database table correctly for the UserSession table.
+
+
 TODO
 =====
-* REST functionality is still a little messy
+* Performance on DB calls with many rows and columns is slow - a 1500 row X 35 column SQL query may take 800ms with this code and only 100ms using straight JDBC code
 * Find a better JSON->Java implementation - maybe Jackson?
 * Replace the basic ConcurrentHashMap cache with a better more tuned cache from Guava
 * MongoDB support probably needs to be added
-* Performance on DB calls with many rows and columns is slow - a 1500 row X 35 column SQL query may take 800ms with this code and only 100ms using straight JDBC code
+* Maven support

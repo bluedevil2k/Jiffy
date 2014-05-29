@@ -6,109 +6,38 @@
     <property environment="env"/>
 	<property name="software.name"    value="Jiffy"/>
 	<property name="build.compiler"   value="javac1.7"/>
-    <property name="webapp"           value="."/>
-    <property name="sourceServer"     value="."/>
-	<property name="tempbuild"        value="/temp"/>
-    <property name="compileJSP.dir"   value="${tempbuild}/compileJSPs"/>
-    <property name="buildlib"         value="./WEB_INF/lib"/>
-	<property name="tomcat.home"   	  value="/tomcat7" />
-    
-    <path id="webapp.lib.path">
-        <fileset dir="${webapp}/WEB-INF/lib">
-            <include name="*.jar"/>
-        </fileset>
-    </path>
-
-	<path id="webapp.path">
-		<pathelement location="${webapp}/WEB-INF/classes"/>
-    </path>
-
-    <path id="tomcatlibs.path">
-        <pathelement location="${tomcat.home}/bin/tomcat-juli.jar"/>
-        <fileset dir="${tomcat.home}/lib">
-            <include name="*.jar"/>
-        </fileset>
-     </path>
-  
-    <taskdef classname="org.apache.jasper.JspC" name="jasperJspC" >
-        <classpath>
-            <path refid="tomcatlibs.path"/>
-            <path refid="webapp.lib.path"/>
-            <path refid="webapp.path"/>
-        </classpath>
-    </taskdef>
+    <property name="webapp"           value="./src"/>
+	<property name="tempbuild"        value="./lib"/>
     
     <!--  initialize the build  -->
     <target name="init">
         <tstamp/>
         <delete dir="${tempbuild}"/>
         <mkdir dir="${tempbuild}"/>
-        <mkdir dir="${compileJSP.dir}"/>
-        <mkdir dir="${compileJSP.dir}/java"/>
-        <mkdir dir="${compileJSP.dir}/classes"/>
     </target>
     
     <!--  copy all the files for the web application -->
-    <target name="copyWebappFiles" depends="init">
+    <target name="copyClassFiles" depends="init">
     	
-        <copy todir="${tempbuild}\webapp\ROOT">
-            <fileset dir="${webapp}" includes="*.jsp,*.txt,*.ico"/>
+        <copy todir="${tempbuild}">
+            <fileset dir="${webapp}\WEB-INF\lib" includes="*.jar"/>
         </copy>
-        <copy todir="${tempbuild}\webapp\ROOT\css">
-            <fileset dir="${webapp}\css\" includes="**/*.css"/>
-        </copy>  
-        <copy todir="${tempbuild}\webapp\ROOT\images">
-            <fileset dir="${webapp}\images\" includes="**/*.jpg,**/*.gif,**/*.png"/>
-        </copy>
-        <copy todir="${tempbuild}\webapp\ROOT\javascript">
-            <fileset dir="${webapp}\javascript\" includes="**/*.min.js"/>
-        </copy>
-        <copy todir="${tempbuild}\webapp\ROOT\jsp">
-            <fileset dir="${webapp}\jsp\" includes="**/*.jsp,**/*.css,**/*.js,**/*.html"/>
-        </copy>
-    	<copy todir="${tempbuild}\webapp\ROOT\WEB-INF">
-            <fileset dir="${webapp}\WEB-INF" includes="*.xml"/>
-        </copy>
-        <copy todir="${tempbuild}\webapp\ROOT\WEB-INF\lib">
-            <fileset dir="${webapp}\WEB-INF\lib" includes="*.*"/>
-        </copy>
-        <copy todir="${tempbuild}\webapp\ROOT\WEB-INF\classes">
+        <copy todir="${tempbuild}\temp">
             <fileset dir="${webapp}\WEB-INF\classes" includes="**/*.class"/>
         </copy>
-        <copy todir="${tempbuild}\webapp\ROOT\WEB-INF\classes">
-            <fileset dir="${webapp}\WEB-INF\classes" includes="**/*.properties,*.xml"/>
+        <copy todir="${tempbuild}">
+            <fileset dir="${webapp}\WEB-INF\classes" includes="*.properties,*.xml"/>
+        </copy>   
+        <copy todir="${tempbuild}\temp">
+            <fileset dir="." includes="LICENSE.txt"/>
         </copy>     
-        <mkdir dir="${tempbuild}\webapp\ROOT\cache"/>
     	
-    </target>
-    
-    <!-- compile the JSPs to make sure there are no errors -->
-	<!--  pre-compile JSPs into java servlets -->
-	<target name="precompileJSPs" depends="copyWebappFiles">
-		<jasperJspC verbose="1"
-					package="java"
-					uriroot="${webapp}"
-					outputDir="${compileJSP.dir}" />     
-	</target>
-	
-	<!-- compile the generated jsps -->
-    <target name="compileJSPs" depends="precompileJSPs">
-        <javac srcdir="${compileJSP.dir}\java"
-               destdir="${compileJSP.dir}\classes"
-	           debug="on" optimize="off" deprecation="off" >
-		    <classpath>
-		        <path refid="tomcatlibs.path"/>
-                <path refid="webapp.lib.path"/>
-		        <path refid="webapp.path"/>
-		    </classpath>
-        </javac>
-    </target>      
+    </target> 
     
     <!--  build release archive  -->
-    <target name="buildReleaseArchive" depends="compileJSPs">
-        <zip basedir="${tempbuild}/webapp/ROOT" destfile="${tempbuild}/jiffy.war"/>
-        <delete dir="${compileJSP.dir}"/>
-        <delete dir="${tempbuild}\webapp"/>
+    <target name="buildReleaseArchive" depends="copyClassFiles">
+        <zip basedir="${tempbuild}\temp" destfile="${tempbuild}/jiffy-1.0.jar"/>
+        <delete dir="${tempbuild}\temp"/>
     </target>
   
 </project>
