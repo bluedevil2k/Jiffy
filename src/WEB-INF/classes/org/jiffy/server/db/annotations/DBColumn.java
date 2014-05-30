@@ -10,5 +10,4 @@ import java.lang.annotation.Target;
 public @interface DBColumn
 {
 	String name() default "";
-	boolean convertName() default true;
 }

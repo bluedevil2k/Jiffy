@@ -453,7 +453,7 @@ public class DB
 			table = type.getSimpleName();
 		}
 		table = Util.camelToUnderscore(table);
-		
+
 		return table;
 	}
 	
@@ -465,11 +465,10 @@ public class DB
 			
 			Field f = type.getField(fieldName);
 			String columnName = f.getAnnotation(DBColumn.class).name();
-			boolean convertName = f.getAnnotation(DBColumn.class).convertName();
 								
 			// allow the argument to be blank, in which case we'll just use the field name as the column name
 			// replacing any upper case letters with a _<lower> to guess-map it to the db column
-			if (StringUtils.isEmpty(columnName) && convertName)
+			if (StringUtils.isEmpty(columnName))
 			{
 				String field = f.getName();
 				columnName = Util.camelToUnderscore(field);

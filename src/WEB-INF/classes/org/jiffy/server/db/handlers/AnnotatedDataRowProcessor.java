@@ -41,57 +41,36 @@ public class AnnotatedDataRowProcessor extends BasicRowProcessor
 			for (int i=0; i<f.length; i++)
 			{
 				Field field = f[i];
-				
+
 				if (field.isAnnotationPresent(DBColumn.class))
 				{
 					String columnName = field.getAnnotation(DBColumn.class).name();
-					boolean convertName = field.getAnnotation(DBColumn.class).convertName();
-										
+		
 					// allow the argument to be blank, in which case we'll just use the field name as the column name
 					// replacing any upper case letters with a _<lower> to guess-map it to the db column
-					if (StringUtils.isEmpty(columnName) && convertName)
+					if (StringUtils.isEmpty(columnName))
 					{
 						String fieldName = field.getName();
 						columnName = Util.camelToUnderscore(fieldName);
 					}
-					
-					if (field.getType().getName().equals("int"))
+										
+					if (field.getType() == int.class)
 					{
 						field.setInt(data, rs.getInt(columnName));
 					}
-					else if (field.getType().getName().equals("long"))
-					{
-						field.setLong(data, rs.getLong(columnName));
-					}
-					else if (field.getType().getName().equals("double"))
-					{
-						field.setDouble(data, rs.getDouble(columnName));
-					}
-					else if (field.getType().getName().equals("java.lang.String"))
+					else if (field.getType() == java.lang.String.class)
 					{
 						field.set(data, rs.getString(columnName));
 					}
-					else if (field.getType().getName().equals("boolean"))
+					else if (field.getType() == double.class)
+					{
+						field.setDouble(data, rs.getDouble(columnName));
+					}
+					else if (field.getType() == boolean.class)
 					{
 						field.setBoolean(data, rs.getBoolean(columnName));
 					}
-					else if (field.getType().getName().equals("float"))
-					{
-						field.setFloat(data, rs.getFloat(columnName));
-					}
-					else if (field.getType().getName().equals("byte"))
-					{
-						field.setByte(data, rs.getByte(columnName));
-					}
-					else if (field.getType().getName().equals("char"))
-					{
-						field.setChar(data, rs.getString(columnName).charAt(0));
-					}
-					else if (field.getType().getName().equals("short"))
-					{
-						field.setShort(data, rs.getShort(columnName));
-					}
-					else if (field.getType().getName().equals("java.util.Date"))
+					else if (field.getType() == java.util.Date.class)
 					{
 						try
 						{
@@ -102,6 +81,26 @@ public class AnnotatedDataRowProcessor extends BasicRowProcessor
 						{
 							// just ignore blank dates and leave them null
 						}
+					}
+					else if (field.getType() == long.class)
+					{
+						field.setLong(data, rs.getLong(columnName));
+					}
+					else if (field.getType() == float.class)
+					{
+						field.setFloat(data, rs.getFloat(columnName));
+					}
+					else if (field.getType() == byte.class)
+					{
+						field.setByte(data, rs.getByte(columnName));
+					}
+					else if (field.getType() == char.class)
+					{
+						field.setChar(data, rs.getString(columnName).charAt(0));
+					}
+					else if (field.getType() == short.class)
+					{
+						field.setShort(data, rs.getShort(columnName));
 					}
 				}
 				else if (field.isAnnotationPresent(DBHasOne.class))
