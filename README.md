@@ -310,7 +310,6 @@ The db folder of the project contains an SQL script to set up the database table
 
 TODO
 =====
-* Performance on DB calls with many rows and columns is slow - a 1500 row X 35 column SQL query may take 800ms with this code and only 100ms using straight JDBC code
 * Find a better JSON->Java implementation - maybe Jackson?
 * Replace the basic ConcurrentHashMap cache with a better more tuned cache from Guava
 * MongoDB support probably needs to be added
