@@ -1,7 +1,7 @@
 Jiffy
 =====
 
-Jiffy is a quick and easy Java Web App Framework for highly scalable applications.
+Jiffy is a quick and easy Java Web App Framework for scalable applications.
 
 The Basics
 =====
@@ -145,7 +145,7 @@ services like in Ruby on Rails.  Either way will work, it's up to you which one 
 
 RPC-Style
 ------
-You can define actions in your controller quickly using this style.  This always takes the form of "controller/action.rpc", where the ".rpc" suffix signifies how you want the domain
+You can define actions in your controller quickly using this style.  This always takes the form of "/rpc/controller/action", where the "rpc" prefix signifies how you want the domain
 to be parsed by the server, RPC-Style as opposed to REST-Style.
 
 In your JSP pages, you should refer to the controllers and the actions in an "underscore" style.  The controllers should then be named in a "camelCase" style.  This is the common setup
@@ -155,7 +155,7 @@ for all Java/PHP/Ruby frameworks.  The conversion happens automatically on the s
 
 
        <!-- On the HTML page -->
-       <form method="post" action="/user_session/login.rpc">
+       <form method="post" action="/rpc/user_session/login">
        
        // Will trigger this function 
        public class UserSessionController

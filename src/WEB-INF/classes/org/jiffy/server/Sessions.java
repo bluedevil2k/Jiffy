@@ -61,7 +61,7 @@ public class Sessions
 		}
 
 		// Store it in the database
-		String sql = "INSERT INTO @table@ (@sessionId@, @userId@, @userName@, @role@, @ipAddress@, @logonTime@, @lastUserActivity@) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		String sql = "INSERT INTO @table@ (@sessionId@, @userId@, @userName@, @role@, @ipAddress@, @logonTime@, @lastUserActivity@) VALUES (?,?,?,?,?,?,?)";
 
 		DB.update(UserSession.class, sql, appSession.sessionId, appSession.userId, appSession.userName, appSession.role, appSession.ipAddress, appSession.logonTime, appSession.lastUserActivity);
 
@@ -110,7 +110,7 @@ public class Sessions
 
 			try
 			{
-				UserSession session = DB.selectOne(UserSession.class, "WHERE session_id=?", sessionID);
+				UserSession session = DB.selectOne(UserSession.class, "WHERE @sessionId@=?", sessionID);
 				return session;
 			}
 			catch (Exception ex)

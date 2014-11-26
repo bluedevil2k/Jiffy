@@ -31,7 +31,7 @@ import org.jiffy.util.Util;
 
 @WebServlet(name="JiffyHTTP", 
             displayName="JiffyHTTP", 
-            urlPatterns={ "*.rpc" }, 
+            urlPatterns={ "/rpc/*" }, 
             loadOnStartup=2,
             initParams={ @WebInitParam(name = "nocache", value = "true")})
 public class JiffyHttpServlet extends HttpServlet
@@ -137,9 +137,9 @@ public class JiffyHttpServlet extends HttpServlet
     	req.setCharacterEncoding("UTF-8");
     	    	    	
 		// parse in the incoming request
-		String requestURI = req.getRequestURI().substring(1, req.getRequestURI().length() - 4);
+		String requestURI = req.getRequestURI().substring(6);
 		String controller = StringUtils.capitalize(Util.underscoreToCamel(requestURI.substring(0, requestURI.indexOf("/"))));
-		String method = StringUtils.lowerCase(Util.underscoreToCamel(requestURI.substring(requestURI.indexOf("/") + 1)));
+		String method = StringUtils.uncapitalize(Util.underscoreToCamel(requestURI.substring(requestURI.indexOf("/") + 1)));
 		
 		try
 		{			
