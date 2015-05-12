@@ -8,7 +8,7 @@ import org.jiffy.server.services.ServiceRequest;
 import org.jiffy.server.services.ServiceResponse;
 import org.jiffy.server.services.responses.NoResponse;
 
-public class AppController 
+public class JiffyController 
 {
 	protected static Logger logger = LogManager.getLogger();
 

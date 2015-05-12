@@ -11,6 +11,13 @@ public class ServiceRequest
 	public HttpServletResponse resp;
 	public UserSession appSess;
 	public String requestType;
-	public String param;
-	public boolean wantsJson;
+	public String restID;
+	public boolean shouldReturnJson;
+	
+	public String getParameter(String param)
+	{
+		return req.getParameter(param);
+	}
+	
+	
 }

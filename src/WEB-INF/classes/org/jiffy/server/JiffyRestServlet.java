@@ -52,13 +52,22 @@ public class JiffyRestServlet extends HttpServlet
     	    	    	
 		// parse in the incoming request
 		String requestURI = req.getRequestURI().substring(6);
-		String controller = StringUtils.capitalize(Util.underscoreToCamel(requestURI.substring(0, requestURI.indexOf("/"))));
-		String param = null;
-		if (requestURI.indexOf("/") < requestURI.length()-1)
-		{
-			param = Util.underscoreToCamel(requestURI.substring(requestURI.indexOf("/") + 1));
-		}
 		
+		String controller = "";
+		String restID = null;
+		if (requestURI.indexOf("/") > -1)
+		{
+			controller = StringUtils.capitalize(Util.underscoreToCamel(requestURI.substring(0, requestURI.indexOf("/"))));
+			if (requestURI.indexOf("/") < requestURI.length()-1)
+			{
+				restID = Util.underscoreToCamel(requestURI.substring(requestURI.indexOf("/") + 1));
+			}
+		}
+		else
+		{
+			controller = StringUtils.capitalize(Util.underscoreToCamel(requestURI));
+		}
+				
 		try
 		{			
 	    	// get the session
@@ -70,8 +79,8 @@ public class JiffyRestServlet extends HttpServlet
 			input.req = req;
 			input.requestType = restType;
 			input.resp = resp;
-			input.param = param;
-			input.wantsJson = req.getHeader("accept").indexOf("json") > -1;
+			input.restID = restID;
+			input.shouldReturnJson = req.getHeader("accept").indexOf("json") > -1;
 
 			// get the controller
 			// look for Jiffy pre-defined controllers first, then look in the user-defined folder			
@@ -88,7 +97,7 @@ public class JiffyRestServlet extends HttpServlet
 					
 			// do the REST analysis
 			String method = "";
-			if (StringUtils.isEmpty(param))
+			if (StringUtils.isEmpty(restID))
 			{
 				if (StringUtils.equals(restType, "GET"))
 				{

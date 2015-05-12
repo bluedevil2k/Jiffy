@@ -152,6 +152,7 @@ public class JiffyHttpServlet extends HttpServlet
 			input.req = req;
 			input.requestType = method;
 			input.resp = resp;
+			input.shouldReturnJson = req.getHeader("accept").indexOf("json") > -1;
 			
 			// get the controller
 			// look for Jiffy pre-defined controllers first, then look in the user-defined folder			

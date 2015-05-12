@@ -5,16 +5,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jiffy.models.JiffyModel;
 import org.jiffy.server.db.DB;
 import org.jiffy.server.db.DBResult;
 import org.jiffy.server.db.annotations.DBColumn;
 import org.jiffy.server.db.annotations.DBTable;
 
 @DBTable
-public class User implements Serializable
+public class User extends JiffyModel implements Serializable
 {	
-	@DBColumn
-	public long id;
 	@DBColumn
 	public String userName;
 	@DBColumn
@@ -63,6 +62,7 @@ public class User implements Serializable
 	public String custom4;
 	@DBColumn
 	public String custom5;
+	
 	
 	/* An example of a 1-to-many database relation
 	@DBHasMany
@@ -132,4 +132,198 @@ public class User implements Serializable
 	{
 		DB.update(User.class, "DELETE FROM @table@ WHERE @id@=?", id);
 	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getCompany() {
+		return company;
+	}
+
+	public void setCompany(String company) {
+		this.company = company;
+	}
+
+	public String getAddress1() {
+		return address1;
+	}
+
+	public void setAddress1(String address1) {
+		this.address1 = address1;
+	}
+
+	public String getAddress2() {
+		return address2;
+	}
+
+	public void setAddress2(String address2) {
+		this.address2 = address2;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getPostalCode() {
+		return postalCode;
+	}
+
+	public void setPostalCode(String postalCode) {
+		this.postalCode = postalCode;
+	}
+
+	public String getPhonePrimary() {
+		return phonePrimary;
+	}
+
+	public void setPhonePrimary(String phonePrimary) {
+		this.phonePrimary = phonePrimary;
+	}
+
+	public String getPhoneCell() {
+		return phoneCell;
+	}
+
+	public void setPhoneCell(String phoneCell) {
+		this.phoneCell = phoneCell;
+	}
+
+	public String getPhoneFax() {
+		return phoneFax;
+	}
+
+	public void setPhoneFax(String phoneFax) {
+		this.phoneFax = phoneFax;
+	}
+
+	public int getFailedAttempts() {
+		return failedAttempts;
+	}
+
+	public void setFailedAttempts(int failedAttempts) {
+		this.failedAttempts = failedAttempts;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public boolean isForcePwChange() {
+		return forcePwChange;
+	}
+
+	public void setForcePwChange(boolean forcePwChange) {
+		this.forcePwChange = forcePwChange;
+	}
+
+	public boolean isFrozen() {
+		return isFrozen;
+	}
+
+	public void setFrozen(boolean isFrozen) {
+		this.isFrozen = isFrozen;
+	}
+
+	public boolean isDisabled() {
+		return isDisabled;
+	}
+
+	public void setDisabled(boolean isDisabled) {
+		this.isDisabled = isDisabled;
+	}
+
+	public String getCustom1() {
+		return custom1;
+	}
+
+	public void setCustom1(String custom1) {
+		this.custom1 = custom1;
+	}
+
+	public String getCustom2() {
+		return custom2;
+	}
+
+	public void setCustom2(String custom2) {
+		this.custom2 = custom2;
+	}
+
+	public String getCustom3() {
+		return custom3;
+	}
+
+	public void setCustom3(String custom3) {
+		this.custom3 = custom3;
+	}
+
+	public String getCustom4() {
+		return custom4;
+	}
+
+	public void setCustom4(String custom4) {
+		this.custom4 = custom4;
+	}
+
+	public String getCustom5() {
+		return custom5;
+	}
+
+	public void setCustom5(String custom5) {
+		this.custom5 = custom5;
+	}
+	
+	
 }

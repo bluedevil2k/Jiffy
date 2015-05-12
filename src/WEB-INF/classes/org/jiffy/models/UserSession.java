@@ -11,7 +11,7 @@ import org.jiffy.server.security.Security;
 import org.jiffy.util.Jiffy;
 
 @DBTable
-public class UserSession implements Serializable
+public class UserSession extends JiffyModel implements Serializable
 {	
 	@DBColumn
 	public String sessionId;

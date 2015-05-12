@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.jiffy.server.Flash;
 import org.jiffy.server.services.ServiceResponse;
 
-public class HttpResponse extends ServiceResponse
+public class HtmlResponse extends ServiceResponse
 {
 	public String nextPage;
 	

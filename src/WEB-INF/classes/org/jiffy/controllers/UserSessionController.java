@@ -1,6 +1,6 @@
 package org.jiffy.controllers;
 
-public class UserSessionController extends AppController
+public class UserSessionController extends JiffyController
 {		
 
 }

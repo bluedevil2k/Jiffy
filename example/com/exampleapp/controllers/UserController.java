@@ -1,7 +1,7 @@
 package com.exampleapp.controllers;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jiffy.controllers.AppController;
+import org.jiffy.controllers.JiffyController;
 import org.jiffy.models.UserSession;
 import org.jiffy.server.Flash;
 import org.jiffy.server.Sessions;
@@ -9,8 +9,9 @@ import org.jiffy.server.security.Roles;
 import org.jiffy.server.services.Service;
 import org.jiffy.server.services.ServiceRequest;
 import org.jiffy.server.services.ServiceResponse;
-import org.jiffy.server.services.responses.HttpResponse;
+import org.jiffy.server.services.responses.HtmlResponse;
 import org.jiffy.server.services.responses.JsonResponse;
+import org.jiffy.server.services.responses.NoResponse;
 import org.jiffy.util.Constants;
 import org.jiffy.util.Jiffy;
 import org.jiffy.util.LogUtil;
@@ -19,14 +20,14 @@ import org.jiffy.util.PasswordUtil;
 import com.exampleapp.models.User;
 import com.exampleapp.models.UserList;
 
-public class UserController extends AppController
+public class UserController extends JiffyController
 {
 	@Service(access=Roles.ADMIN)
 	public static ServiceResponse index(ServiceRequest input) throws Exception
 	{		
 		UserList s = User.lookup();
 		
-		if (input.wantsJson)
+		if (input.shouldReturnJson)
 		{
 			JsonResponse response = new JsonResponse();
 			response.jsonArray = s.toArray();
@@ -34,7 +35,7 @@ public class UserController extends AppController
 		}
 		else
 		{
-			HttpResponse response = new HttpResponse();
+			HtmlResponse response = new HtmlResponse();
 			response.nextPage = "/index.jsp";
 			return response;
 		}
@@ -43,22 +44,38 @@ public class UserController extends AppController
 	@Service(access=Roles.ADMIN)
 	public static ServiceResponse show(ServiceRequest input) throws Exception
 	{
-		User u = User.lookup(Integer.parseInt(input.param));
+		User u = User.lookup(Integer.parseInt(input.restID));
 
-		JsonResponse response = new JsonResponse();
-		response.jsonObject = u;
-		return response;
+		if (input.shouldReturnJson)
+		{
+			JsonResponse response = new JsonResponse();
+			response.jsonObject = u;
+			return response;
+		}
+		else
+		{
+			HtmlResponse response = new HtmlResponse();
+			response.nextPage = "/index.jsp";
+			return response;
+		}
 	}
 	
 	@Service(access=Roles.ADMIN)
 	public static ServiceResponse destroy(ServiceRequest input) throws Exception
 	{
-		int id = Integer.parseInt(input.param);
+		int id = Integer.parseInt(input.restID);
 		User.delete(id);
-		
-		JsonResponse response = new JsonResponse();
-		response.jsonObject = "SUCCESS";
-		return response;
+
+		if (input.shouldReturnJson)
+		{
+			JsonResponse response = new JsonResponse();
+			response.jsonObject = "SUCCESS";
+			return response;
+		}
+		else
+		{
+			return new NoResponse();
+		}
 	}
 	
 	@Service(access=Roles.ALL)
@@ -139,7 +156,7 @@ public class UserController extends AppController
 			Flash.set(input.req, Constants.ERROR_MESSAGE, e.getMessage());
 		}
 						
-		HttpResponse response = new HttpResponse();
+		HtmlResponse response = new HtmlResponse();
 		response.nextPage = "/index.jsp";
 		return response;
 	}
@@ -157,7 +174,7 @@ public class UserController extends AppController
 			Flash.set(input.req, Constants.ERROR_MESSAGE, e.getMessage());
 		}
 		
-		HttpResponse response = new HttpResponse();
+		HtmlResponse response = new HtmlResponse();
 		response.nextPage = "/index.jsp";
 		return response;
 	}

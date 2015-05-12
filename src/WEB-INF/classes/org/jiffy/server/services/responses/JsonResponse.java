@@ -21,11 +21,12 @@ public class JsonResponse extends ServiceResponse
     	    	
 		resp.setCharacterEncoding("UTF-8");
 		resp.setContentType("application/json");
+		
 		if (jsonObject != null)
 		{
 			resp.getWriter().print(new JSONObject(jsonObject).toString());
 		}
-		else if (jsonObject != null)
+		else if (jsonArray != null)
 		{
 			resp.getWriter().print(new JSONArray(jsonArray).toString());
 		}
