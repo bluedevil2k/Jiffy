@@ -18,6 +18,7 @@ public class HtmlResponse extends ServiceResponse
 		// Set all responses to redirects for proper routing in the browser
 		
 		// As a result, we must map the attributes to the Flash object
+		
 		Enumeration<String> e = req.getAttributeNames();
 		while (e.hasMoreElements())
 		{

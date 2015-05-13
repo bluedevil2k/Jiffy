@@ -96,7 +96,7 @@ public class JiffyHttpServlet extends HttpServlet
 				// if the sessions are db based, we don't need to do this
 				if (Jiffy.getBool("isSingleServerDeploy"))
 				{
-					UserSession.deleteSessions();
+					UserSession.deleteAll();
 
 					// start the session updater thread
 			        UserSessionUpdaterThread sessionUpdater = new UserSessionUpdaterThread();
@@ -148,11 +148,14 @@ public class JiffyHttpServlet extends HttpServlet
 			
 			// build the input object
 			ServiceRequest input = new ServiceRequest();
-			input.appSess = appSess;
-			input.req = req;
+			input.appSession = appSess;
+			input.request = req;
 			input.requestType = method;
-			input.resp = resp;
-			input.shouldReturnJson = req.getHeader("accept").indexOf("json") > -1;
+			input.response = resp;
+			input.shouldReturnJson = (req.getHeader("accept").indexOf("json") > -1) || (req.getHeader("Content-Type").indexOf("json") > -1);
+			
+			// delete the Flash
+			Flash.delete(req);
 			
 			// get the controller
 			// look for Jiffy pre-defined controllers first, then look in the user-defined folder			

@@ -28,30 +28,33 @@ public class UserSession extends JiffyModel implements Serializable
 	@DBColumn
 	public java.util.Date lastUserActivity;
 
-	public static UserSessionList lookup() throws Exception 
+	
+	public static UserSessionList getAll() throws Exception 
 	{
 	  	return DB.selectAll(UserSessionList.class);
-	}
+	}   
 	
-	public static long getLoggedInUserCount() throws Exception
-	{
-	  	return DB.countDistinct(UserSession.class, "@userId@", "WHERE @role@!='admin'");
-	}
-	        
-	public static UserSession lookup(String sessionId) throws Exception 
+	public static UserSession get(String sessionId) throws Exception 
 	{
 	  	return DB.selectOne(UserSession.class, "WHERE @sessionId@=?", sessionId);
 	}
 
-	public static void deleteSessions() throws Exception 
+	public static void deleteAll() throws Exception 
 	{
 	   	DB.update(UserSession.class, "DELETE FROM @table@");
 	}    
 	    
-	public static void deleteSessions(long userId) throws Exception 
+	public static void delete(long userId) throws Exception 
 	{
 	   	DB.update(UserSession.class, "DELETE FROM @table@ WHERE @userId@=?", userId);
 	}    
+	
+	
+	
+	public static long getLoggedInUserCount() throws Exception
+	{
+	  	return DB.countDistinct(UserSession.class, "@userId@", "WHERE @role@!='admin'");
+	}	   
 	    
 	public static void updateSessionActivity(UserSession session, String requestType) throws Exception 
 	{

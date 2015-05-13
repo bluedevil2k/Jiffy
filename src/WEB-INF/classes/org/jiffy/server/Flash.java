@@ -1,7 +1,6 @@
 package org.jiffy.server;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -9,21 +8,21 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jiffy.util.LogUtil;
 
-public class Flash 
+public class Flash extends HashMap<String, Object>
 {
 	private static Logger logger = LogManager.getLogger();
 	
 	private static final String FLASH = "FLASH";
-	
-	public static synchronized void set(HttpServletRequest req, String key, Object value)
+		
+	public static void set(HttpServletRequest req, String key, Object value)
 	{
 		try
 		{
-			Map<String, Object> flash = (Map<String, Object>)Sessions.get(req, FLASH);
+			Flash flash = (Flash)Sessions.get(req, FLASH);
 			
 			if (flash == null)
 			{
-				flash = new HashMap<String, Object>();
+				flash = new Flash();
 			}
 			
 			flash.put(key, value);
@@ -36,10 +35,15 @@ public class Flash
 		}
 	}
 	
-	public static Map<String, Object> retrieve(HttpServletRequest req) throws Exception
+	public static Flash retrieve(HttpServletRequest req) throws Exception
 	{
-		Map<String, Object> flash = (Map<String, Object>)Sessions.get(req, FLASH);
+		Flash flash = (Flash)Sessions.get(req, FLASH);
 		Sessions.remove(req, FLASH);
 		return flash;
+	}
+	
+	public static void delete(HttpServletRequest req) throws Exception
+	{
+		Sessions.remove(req, FLASH);
 	}
 }

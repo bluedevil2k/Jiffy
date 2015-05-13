@@ -25,7 +25,7 @@ public class UserController extends JiffyController
 	@Service(access=Roles.ADMIN)
 	public static ServiceResponse index(ServiceRequest input) throws Exception
 	{		
-		UserList s = User.lookup();
+		UserList s = User.getAll();
 		
 		if (input.shouldReturnJson)
 		{
@@ -44,7 +44,7 @@ public class UserController extends JiffyController
 	@Service(access=Roles.ADMIN)
 	public static ServiceResponse show(ServiceRequest input) throws Exception
 	{
-		User u = User.lookup(Integer.parseInt(input.restID));
+		User u = User.get(Integer.parseInt(input.restID));
 
 		if (input.shouldReturnJson)
 		{
@@ -83,10 +83,10 @@ public class UserController extends JiffyController
 	{
 		try
 		{			
-			String username = input.req.getParameter("username");
-			String password = input.req.getParameter("password");
+			String username = input.getParameter("username");
+			String password = input.getParameter("password");
 						
-		    User user = User.lookupForLogin(username);
+		    User user = User.getByLogin(username);
 					        
 		    UserSession uSess = null;
 					        
@@ -115,7 +115,7 @@ public class UserController extends JiffyController
 		           	uSess.userId = user.id;
 		           	uSess.role = user.role;
 		           	uSess.userName = user.userName;
-		           	uSess.ipAddress = input.req.getRemoteAddr();
+		           	uSess.ipAddress = input.request.getRemoteAddr();
 		           	uSess.logonTime = new java.util.Date();
 		           	uSess.lastUserActivity = new java.util.Date();
 		            logonSuccessful = true;
@@ -125,7 +125,7 @@ public class UserController extends JiffyController
 		        if (logonSuccessful) 
 		        {
 		            User.markUserAsLoggedIn(username);
-		            Sessions.addSession(input.req, input.resp, uSess);
+		            Sessions.addSession(input.request, input.response, uSess);
 			    } 
 			    // they entered a valid user name, but incorrect password
 			    else 
@@ -153,7 +153,7 @@ public class UserController extends JiffyController
 		catch (Exception e)
 		{
 			LogUtil.printErrorDetails(logger, e);
-			Flash.set(input.req, Constants.ERROR_MESSAGE, e.getMessage());
+			Flash.set(input.request, Constants.ERROR_MESSAGE, e.getMessage());
 		}
 						
 		HtmlResponse response = new HtmlResponse();
@@ -166,12 +166,12 @@ public class UserController extends JiffyController
 	{
 		try
 		{		
-			Sessions.removeSession(input.req, input.resp, input.appSess);
+			Sessions.removeSession(input.request, input.response, input.appSession);
 		}
 		catch (Exception e)
 		{
 			LogUtil.printErrorDetails(logger, e);
-			Flash.set(input.req, Constants.ERROR_MESSAGE, e.getMessage());
+			Flash.set(input.request, Constants.ERROR_MESSAGE, e.getMessage());
 		}
 		
 		HtmlResponse response = new HtmlResponse();

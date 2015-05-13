@@ -7,16 +7,16 @@ import org.jiffy.models.UserSession;
 
 public class ServiceRequest
 {
-	public HttpServletRequest req;
-	public HttpServletResponse resp;
-	public UserSession appSess;
+	public HttpServletRequest request;
+	public HttpServletResponse response;
+	public UserSession appSession;
 	public String requestType;
 	public String restID;
 	public boolean shouldReturnJson;
 	
 	public String getParameter(String param)
 	{
-		return req.getParameter(param);
+		return request.getParameter(param);
 	}
 	
 	

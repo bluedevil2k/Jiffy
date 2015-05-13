@@ -75,13 +75,16 @@ public class JiffyRestServlet extends HttpServlet
 			
 			// build the input object
 			ServiceRequest input = new ServiceRequest();
-			input.appSess = appSess;
-			input.req = req;
+			input.appSession = appSess;
+			input.request = req;
 			input.requestType = restType;
-			input.resp = resp;
+			input.response = resp;
 			input.restID = restID;
-			input.shouldReturnJson = req.getHeader("accept").indexOf("json") > -1;
+			input.shouldReturnJson = (req.getHeader("accept").indexOf("json") > -1) || (req.getHeader("Content-Type").indexOf("json") > -1);
 
+			// delete the Flash
+			Flash.delete(req);
+			
 			// get the controller
 			// look for Jiffy pre-defined controllers first, then look in the user-defined folder			
 			Class c = null;

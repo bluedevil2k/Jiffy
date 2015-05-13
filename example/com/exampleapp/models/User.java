@@ -74,22 +74,27 @@ public class User extends JiffyModel implements Serializable
 	public Item item;
 	*/
 			
-	public static User lookup(long id) throws Exception
+	public static User get(long id) throws Exception
 	{
 		return DB.selectOne(User.class, "WHERE @id@=?", id);
 	}
 
-	public static UserList lookup(String userRole) throws Exception
+	public static UserList get(String userRole) throws Exception
 	{
 		return DB.selectAll(UserList.class, "WHERE @role@=? ORDER BY @userName@", userRole);
 	}
 
-	public static UserList lookup() throws Exception
+	public static UserList getAll() throws Exception
 	{
 		return DB.selectAll(UserList.class, "ORDER BY @userName@");
 	}
 	
-	public static User lookupForLogin(String username) throws Exception
+	public static void delete(int id) throws Exception
+	{
+		DB.update(User.class, "DELETE FROM @table@ WHERE @id@=?", id);
+	}
+	
+	public static User getByLogin(String username) throws Exception
 	{
 		return DB.selectOne(User.class, "WHERE @userName@=? AND @isFrozen@=false", username);
 	}
@@ -128,10 +133,6 @@ public class User extends JiffyModel implements Serializable
 		return toReturn;
 	}
 	
-	public static void delete(int id) throws Exception
-	{
-		DB.update(User.class, "DELETE FROM @table@ WHERE @id@=?", id);
-	}
 
 	public String getUserName() {
 		return userName;

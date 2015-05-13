@@ -30,7 +30,7 @@ public class Security
 	    }   
 	    	    
 	    // if their appSession from their session doesn't match one in the DB, they've been kicked-off but still have a valid browser session
-	    if (UserSession.lookup(appSession.sessionId) == null)
+	    if (UserSession.get(appSession.sessionId) == null)
 	    {
 	    	throw new Exception(Constants.INVALID_ACCESS);	    	
 	    }   
@@ -88,7 +88,7 @@ public class Security
 	    } 
 	    
 	    // if their appSession from their session doesn't match one in the DB, they've been kicked-off but still have a valid browser session
-	    if (UserSession.lookup(appSession.sessionId) == null)
+	    if (UserSession.get(appSession.sessionId) == null)
 	    {
 	    	throw new Exception(Constants.INVALID_ACCESS);	    	
 	    }  

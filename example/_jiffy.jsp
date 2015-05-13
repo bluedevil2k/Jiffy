@@ -10,5 +10,5 @@
 <%
 	JSPUtil.noCache(response);
 	UserSession userSession = Sessions.getSession(request);
-	Map<String, Object> flash = Flash.retrieve(request);
+	Flash flash = Flash.retrieve(request);
 %>
