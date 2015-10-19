@@ -106,13 +106,15 @@ public class AnnotatedDataRowProcessor extends BasicRowProcessor
 				else if (field.isAnnotationPresent(DBHasOne.class))
 				{
 					Class<?> clazz = field.getType();
-					String table = DB.getTableName(clazz);
+					String table = DB.getTableName(data.getClass());
+					//String table = DB.getTableName(clazz);
 					field.set(data, DB.selectOne(clazz, new StringBuilder("WHERE ").append(table).append("_id=?").toString(), data.getClass().getField("id").getLong(data)));
 				}
 				else if (field.isAnnotationPresent(DBHasMany.class))
 				{
 					Class clazz = field.getType();
-					String table = ((Class<?>)((ParameterizedType)clazz.getGenericSuperclass()).getActualTypeArguments()[0]).getAnnotation(DBTable.class).table();
+					String table = DB.getTableName(data.getClass());
+					//String table = ((Class<?>)((ParameterizedType)clazz.getGenericSuperclass()).getActualTypeArguments()[0]).getAnnotation(DBTable.class).table();
 					if (StringUtils.isEmpty(table))
 					{
 						table = ((Class<?>)((ParameterizedType)clazz.getGenericSuperclass()).getActualTypeArguments()[0]).getSimpleName();

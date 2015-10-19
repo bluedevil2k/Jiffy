@@ -7,12 +7,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
+import org.apache.commons.dbutils.handlers.MapHandler;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -168,23 +170,6 @@ public class DB
 			DbUtils.close(conn);
 		}
     }
-    	
-//	public static <T> T selectOne(String sql, Class<T> type, Object...args) throws Exception
-//	{
-//		QueryRunner run = new QueryRunner();
-//		ResultSetHandler<T> h = new BeanHandler<T>(type, new AnnotatedDataRowProcessor());
-//
-//		Connection conn = DB.getConnection();
-//		try
-//		{
-//			T result = run.query(conn, sql, h, args);
-//			return result;		        
-//		} 
-//		finally 
-//		{
-//			DbUtils.close(conn);  
-//		}
-//	}
 	
 	public static <T> T selectOne(Class<T> type) throws Exception
 	{
@@ -212,24 +197,6 @@ public class DB
 			DbUtils.close(conn);  
 		}
 	}
-	
-//	public static <T, S extends ArrayList<T>> S selectAll(String sql, Class<S> listType, Object...args) throws Exception
-//	{
-//		Class<T> t = (Class<T>)((ParameterizedType)listType.getGenericSuperclass()).getActualTypeArguments()[0];
-//
-//		QueryRunner run = new QueryRunner();
-//		ResultSetHandler<List<T>> h = new BeanListHandler<T>(t, new AnnotatedDataRowProcessor(listType));
-//
-//		Connection conn = DB.getConnection();
-//		try
-//		{
-//		    return (S)run.query(conn, sql, h, args);
-//		} 
-//		finally 
-//		{
-//		    DbUtils.close(conn);  
-//		}
-//	}
 	
 	public static <T, S extends ArrayList<T>> S selectAll(Class<S> listType) throws Exception
 	{
@@ -287,6 +254,217 @@ public class DB
 		sql = StringUtils.replace(sql, "@table@", table);
 		
 	    return run.update(conn, convertFieldsToColumns(type, sql), args);
+	}
+	
+	public static int insertUpdate(Object o, String[] uniqueKeys, Object[] uniqueValues) throws Exception
+	{
+		String tableName = o.getClass().getAnnotation(DBTable.class).table();
+		if (StringUtils.isEmpty(tableName))
+		{
+			tableName = o.getClass().getSimpleName();
+		}
+		tableName = Util.camelToUnderscore(tableName);
+		
+		String sql = "WHERE ";
+		for (int i=0; i<uniqueKeys.length; i++)
+		{
+			sql += uniqueKeys[i] + "=? AND";
+		}
+		
+		sql = sql.substring(0, sql.length()-4);
+		
+		int count = DB.count(o.getClass(), sql, uniqueValues);
+		
+		if (count == 0)
+		{
+			return insert(o);
+		}
+		else
+		{
+			return update(o, uniqueKeys, uniqueValues);
+		}
+	}
+	
+	public static int update(Object o, String[] uniqueKeys, Object[] uniqueValues) throws Exception
+	{
+		QueryRunner run = new QueryRunner();
+		
+		Connection conn = DB.getConnection();
+		
+		try
+		{
+			String tableName = o.getClass().getAnnotation(DBTable.class).table();
+			if (StringUtils.isEmpty(tableName))
+			{
+				tableName = o.getClass().getSimpleName();
+			}
+			tableName = Util.camelToUnderscore(tableName);
+
+			int id = 0;
+			
+			Field[] f = o.getClass().getFields();
+			
+			String sql = "UPDATE " + tableName + " SET ";
+			
+			ArrayList<Object> params = new ArrayList<Object>();
+		
+			for (int i=0; i<f.length; i++)
+			{
+				Field field = f[i];
+
+				if (field.isAnnotationPresent(DBColumn.class))
+				{
+					String columnName = field.getAnnotation(DBColumn.class).name();
+					if (StringUtils.isEmpty(columnName))
+					{
+						String fieldName = field.getName();
+						columnName = Util.camelToUnderscore(fieldName);
+					}
+					
+					// if it's a unique column, skip it
+					boolean shouldSkip = false;
+					for (int c=0; c<uniqueKeys.length; c++)
+					{
+						String key = uniqueKeys[c];
+						if (StringUtils.equals(key, columnName))
+						{
+							shouldSkip = true;
+						}
+					}
+					if (shouldSkip)
+					{
+						continue;
+					}
+					
+					if (StringUtils.equals(columnName, "id"))
+					{
+						id = field.getInt(o);
+						continue;
+					}
+					
+					if (field.getType() == String.class)
+					{
+						sql += columnName + "=?,";
+						params.add(field.get(o));
+					}
+					else if (field.getType() == java.util.Date.class)
+					{
+						java.util.Date d = (java.util.Date)field.get(o);
+						if (d != null)
+						{
+							java.sql.Timestamp ts = new java.sql.Timestamp(d.getTime());
+							sql += columnName + "=?,";
+							params.add(field.get(o));
+						}
+					}
+					else
+					{
+						sql += columnName + "=?,";
+						params.add(field.get(o));
+					}
+				}
+			}
+			sql = sql.substring(0, sql.length()-1);
+			
+			sql += " WHERE ";
+			for (int c=0; c<uniqueKeys.length; c++)
+			{
+				String key = uniqueKeys[c];
+				sql += key + "=?,";
+				params.add(uniqueValues[c]);
+			}
+			
+			sql = sql.substring(0, sql.length()-1);
+
+			run.update(conn, sql, params.toArray());
+			
+			return id;
+		}
+		finally
+		{
+			DbUtils.close(conn);
+		}
+			
+	}
+	
+	public static int insert(Object o) throws Exception
+	{
+		QueryRunner run = new QueryRunner();
+		
+		Connection conn = DB.getConnection();
+		
+		try
+		{
+			String tableName = o.getClass().getAnnotation(DBTable.class).table();
+			if (StringUtils.isEmpty(tableName))
+			{
+				tableName = o.getClass().getSimpleName();
+			}
+			tableName = Util.camelToUnderscore(tableName);
+
+			Field[] f = o.getClass().getFields();
+			
+			String sql = "INSERT INTO ";
+			
+			sql += tableName + " (";
+			String values = "";
+			ArrayList<Object> params = new ArrayList<Object>();
+		
+			for (int i=0; i<f.length; i++)
+			{
+				Field field = f[i];
+
+				if (field.isAnnotationPresent(DBColumn.class))
+				{
+					String columnName = field.getAnnotation(DBColumn.class).name();
+					if (StringUtils.isEmpty(columnName))
+					{
+						String fieldName = field.getName();
+						columnName = Util.camelToUnderscore(fieldName);
+					}
+					
+					if (StringUtils.equals(columnName, "id"))
+					{
+						continue;
+					}
+					
+					sql += columnName + ",";
+					if (field.getType() == String.class)
+					{
+						values += "?,";
+						params.add(field.get(o));
+					}
+					else if (field.getType() == java.util.Date.class)
+					{
+						java.util.Date d = (java.util.Date)field.get(o);
+						if (d != null)
+						{
+							java.sql.Timestamp ts = new java.sql.Timestamp(d.getTime());
+							values += "?,";
+							params.add(field.get(o));
+						}
+					}
+					else
+					{
+						values += "?,";
+						params.add(field.get(o));
+					}
+				}
+			}
+			sql = sql.substring(0, sql.length()-1);
+			values = values.substring(0, values.length()-1);
+			
+			sql = sql + ") VALUES (" + values + ")";
+			
+			Map<String, Object> map = run.insert(conn, sql, new MapHandler(), params.toArray());
+			
+			long newId = (Long)map.get("GENERATED_KEY");
+			return (int)newId;
+		}
+		finally
+		{
+			DbUtils.close(conn);
+		}
 	}
 		
 	public static <T> int count(Class<T> type, String clause, Object... args) throws Exception

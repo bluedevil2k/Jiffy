@@ -1,6 +1,7 @@
 package org.jiffy.models;
 
 import org.jiffy.server.db.annotations.DBColumn;
+import org.json.JSONObject;
 
 public class JiffyModel
 {
@@ -15,5 +16,10 @@ public class JiffyModel
 	public void setId(int id) 
 	{
 		this.id = id;
+	}
+	
+	public String toJSON()
+	{
+		return new JSONObject(this).toString();
 	}
 }

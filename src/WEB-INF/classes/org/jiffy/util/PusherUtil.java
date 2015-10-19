@@ -27,7 +27,7 @@ public class PusherUtil
 	// Pusher Host name
 	private final static String pusherHost = "api.pusherapp.com";
 			
-	public static void trigger(final String message, final String pusherChannel, final String event)
+	public static void trigger(final String pusherChannel, final String event, final String message)
 	{
 		// do it on a separate thread so that we don't block the application, and that errors are swallowed up
 		Thread thread = new Thread(){

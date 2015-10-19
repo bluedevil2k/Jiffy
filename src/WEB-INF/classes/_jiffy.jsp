@@ -10,5 +10,15 @@
 <%
 	JSPUtil.noCache(response);
 	UserSession userSession = Sessions.getSession(request);
-	Flash flash = Flash.retrieve(request);
+	boolean isLoggedIn = userSession != null;
+	
+	JiffyUser user = null;
+	Flash flash = null;
+	
+	if (isLoggedIn)
+	{
+		user = JiffyUser.getById(userSession.userId);
+		flash = Flash.retrieve(request);
+	}
+	
 %>

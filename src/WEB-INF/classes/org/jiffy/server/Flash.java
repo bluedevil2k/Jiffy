@@ -39,6 +39,10 @@ public class Flash extends HashMap<String, Object>
 	{
 		Flash flash = (Flash)Sessions.get(req, FLASH);
 		Sessions.remove(req, FLASH);
+		if (flash == null)
+		{
+			flash = new Flash();
+		}
 		return flash;
 	}
 	

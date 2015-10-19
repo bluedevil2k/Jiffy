@@ -80,7 +80,7 @@ public class JiffyRestServlet extends HttpServlet
 			input.requestType = restType;
 			input.response = resp;
 			input.restID = restID;
-			input.shouldReturnJson = (req.getHeader("accept").indexOf("json") > -1) || (req.getHeader("Content-Type").indexOf("json") > -1);
+			input.shouldReturnJson = (req.getHeader("accept") != null && req.getHeader("accept").indexOf("json") > -1) || (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").indexOf("json") > -1);
 
 			// delete the Flash
 			Flash.delete(req);
@@ -91,7 +91,7 @@ public class JiffyRestServlet extends HttpServlet
 			
 			if (StringUtils.equals(controller, "UserSession"))
 			{
-				c = Class.forName("org.jiffy.UserSessionController");
+				c = Class.forName("org.jiffy.controllers.UserSessionController");
 			}
 			else
 			{

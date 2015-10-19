@@ -137,7 +137,7 @@ public class JiffyHttpServlet extends HttpServlet
     	req.setCharacterEncoding("UTF-8");
     	    	    	
 		// parse in the incoming request
-		String requestURI = req.getRequestURI().substring(6);
+		String requestURI = req.getRequestURI().substring(5);
 		String controller = StringUtils.capitalize(Util.underscoreToCamel(requestURI.substring(0, requestURI.indexOf("/"))));
 		String method = StringUtils.uncapitalize(Util.underscoreToCamel(requestURI.substring(requestURI.indexOf("/") + 1)));
 		
@@ -152,7 +152,7 @@ public class JiffyHttpServlet extends HttpServlet
 			input.request = req;
 			input.requestType = method;
 			input.response = resp;
-			input.shouldReturnJson = (req.getHeader("accept").indexOf("json") > -1) || (req.getHeader("Content-Type").indexOf("json") > -1);
+			input.shouldReturnJson = (req.getHeader("accept") != null && req.getHeader("accept").indexOf("json") > -1) || (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").indexOf("json") > -1);
 			
 			// delete the Flash
 			Flash.delete(req);
@@ -163,7 +163,7 @@ public class JiffyHttpServlet extends HttpServlet
 			
 			if (StringUtils.equals(controller, "UserSession"))
 			{
-				c = Class.forName("org.jiffy.UserSessionController");
+				c = Class.forName("org.jiffy.controllers.UserSessionController");
 			}
 			else
 			{

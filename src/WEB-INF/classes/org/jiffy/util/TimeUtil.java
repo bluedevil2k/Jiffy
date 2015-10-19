@@ -14,6 +14,13 @@ public class TimeUtil
 {
 	public static Logger logger = LogManager.getLogger();
 	
+	public static String dateToJavascriptDate(java.util.Date date)
+	{
+		String d = date.toString();
+		d = StringUtils.replace(d, "-", "/");
+		return d.substring(0, d.length()-2);
+	}
+	
 	public static String formatTime(long millis, String format, String timeZoneId)
 	{
 		return DateFormatUtils.format(millis,  format, TimeZone.getTimeZone(timeZoneId));

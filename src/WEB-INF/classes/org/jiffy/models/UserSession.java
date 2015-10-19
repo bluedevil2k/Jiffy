@@ -11,7 +11,7 @@ import org.jiffy.server.security.Security;
 import org.jiffy.util.Jiffy;
 
 @DBTable
-public class UserSession extends JiffyModel implements Serializable
+public class UserSession implements Serializable
 {	
 	@DBColumn
 	public String sessionId;
@@ -27,7 +27,21 @@ public class UserSession extends JiffyModel implements Serializable
 	public java.util.Date logonTime;
 	@DBColumn
 	public java.util.Date lastUserActivity;
+	
+	public static UserSession createUserSession(JiffyUser u, String ip) throws Exception
+	{     	
+		UserSession uSess = new UserSession();
+       	uSess.sessionId = "";
+       	uSess.userId = u.id;
+       	uSess.role = u.role;
+       	uSess.userName = u.userName;
+       	uSess.ipAddress = ip;
+       	uSess.logonTime = new java.util.Date();
+       	uSess.lastUserActivity = new java.util.Date();
 
+        JiffyUser.markUserAsLoggedIn(u.userName);
+        return uSess;
+	}
 	
 	public static UserSessionList getAll() throws Exception 
 	{
@@ -48,8 +62,6 @@ public class UserSession extends JiffyModel implements Serializable
 	{
 	   	DB.update(UserSession.class, "DELETE FROM @table@ WHERE @userId@=?", userId);
 	}    
-	
-	
 	
 	public static long getLoggedInUserCount() throws Exception
 	{
