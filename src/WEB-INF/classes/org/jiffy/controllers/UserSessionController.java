@@ -14,6 +14,7 @@ import org.jiffy.util.Constants;
 import org.jiffy.util.Jiffy;
 import org.jiffy.util.LogUtil;
 import org.jiffy.util.PasswordUtil;
+import org.jiffy.util.Text;
 
 public class UserSessionController extends JiffyController
 {		
@@ -37,14 +38,13 @@ public class UserSessionController extends JiffyController
 		    	// if their account is frozen
 		    	if (user.isFrozen)
 		    	{
-		    		// TODO Extract out text resources
-		    		throw new Exception("Your login has been locked.  Please email admin@max-testosterone.com to reset your username");
+		    		throw new Exception(Text.get("login.locked"));
 		    	}
 		    	
 		        // check that the case of the username is the same
 		        if (!StringUtils.equals(user.userName, username))
 		        {
-		            throw new Exception("Invalid Login");
+		            throw new Exception(Text.get("login.error"));
 		        }
 
 		        // now move onto password    
@@ -71,13 +71,13 @@ public class UserSessionController extends JiffyController
 			        	JiffyUser.freezeUser(username);
 			        }
 			                
-			        throw new Exception("Invalid Login");					                 
+			        throw new Exception(Text.get("login.error"));					                 
 			     }
 			} 
 			// they entered an invalid user name
 		    else 
 			{
-			   throw new Exception("Invalid Login");
+			   throw new Exception(Text.get("login.error"));
 			}
 
 			HtmlResponse response = new HtmlResponse();
@@ -89,13 +89,11 @@ public class UserSessionController extends JiffyController
 		{
 			LogUtil.printErrorDetails(logger, e);
 			Flash.set(input.request, Constants.ERROR_MESSAGE, e.getMessage());
-			// TODO Flash should be accessible for not logged-in users
 			
 			HtmlResponse response = new HtmlResponse();
 			response.nextPage = onFail;
 			return response;
-		}
-						
+		}						
 	}
 	
 	@Service(access=Roles.ALL_ROLES)

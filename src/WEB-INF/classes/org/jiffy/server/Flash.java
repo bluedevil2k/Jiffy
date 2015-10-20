@@ -50,4 +50,5 @@ public class Flash extends HashMap<String, Object>
 	{
 		Sessions.remove(req, FLASH);
 	}
+	
 }

@@ -27,6 +27,7 @@ import org.jiffy.server.threads.UserSessionUpdaterThread;
 import org.jiffy.util.Constants;
 import org.jiffy.util.Jiffy;
 import org.jiffy.util.LogUtil;
+import org.jiffy.util.Text;
 import org.jiffy.util.Util;
 
 @WebServlet(name="JiffyHTTP", 
@@ -82,6 +83,13 @@ public class JiffyHttpServlet extends HttpServlet
 			Sessions.init();
 			System.out.println("***** Sessions Initialized");
 			logger.info("***** Sessions Initialized");
+
+			////////////////
+			// Init the Text Resources
+			////////////////
+			Text.init();
+			System.out.println("***** Text Initialized");
+			logger.info("***** Text Initialized");
 			
 			///////////////
 			// Start the ScheduleThread & UserSessionThread if and only if it's the "admin" server
